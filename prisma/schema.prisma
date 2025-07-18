@@ -1,15 +1,185 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model detail_pesanan_layanan {
+  id_detail   Int      @id @default(autoincrement())
+  pesanan_id  Int?
+  layanan_id  Int?
+  jumlah_item Int?
+  subtotal    Decimal? @db.Decimal(12, 2)
+  pesanan     pesanan? @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_layanan_ibfk_1")
+  layanan     layanan? @relation(fields: [layanan_id], references: [layanan_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_layanan_ibfk_2")
+
+  @@unique([pesanan_id, layanan_id], map: "pesanan_id")
+  @@index([layanan_id], map: "layanan_id")
+}
+
+model detail_pesanan_produk {
+  id_detail   Int      @id @default(autoincrement())
+  pesanan_id  Int?
+  produk_id   Int?
+  jumlah_item Int?
+  subtotal    Decimal? @db.Decimal(12, 2)
+  pesanan     pesanan? @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_produk_ibfk_1")
+  produk      produk?  @relation(fields: [produk_id], references: [produk_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_produk_ibfk_2")
+
+  @@unique([pesanan_id, produk_id], map: "pesanan_id")
+  @@index([produk_id], map: "produk_id")
+}
+
+model dompet_mitra {
+  id_dompet      Int              @id @default(autoincrement())
+  mitra_id       Int?
+  saldo          Decimal?         @db.Decimal(12, 2)
+  status_dompet  String?          @db.VarChar(50)
+  tanggal_dibuat DateTime?        @db.DateTime(0)
+  tanggal_diubah DateTime?        @db.DateTime(0)
+  penjual        penjual?         @relation(fields: [mitra_id], references: [mitra_id], onDelete: Restrict, onUpdate: Restrict, map: "dompet_mitra_ibfk_1")
+  riwayat_dompet riwayat_dompet[]
+
+  @@index([mitra_id], map: "mitra_id")
+}
+
+model kategori {
+  id_kategori        Int      @id @default(autoincrement())
+  nama_kategori      String?  @unique(map: "nama_kategori") @db.VarChar(100)
+  deskripsi_kategori String?  @db.Text
+  produk             produk[]
+}
+
+model layanan {
+  layanan_id             Int                      @id @default(autoincrement())
+  mitra_id               Int?
+  nama_layanan           String?                  @db.VarChar(100)
+  harga                  Decimal?                 @db.Decimal(12, 2)
+  jenis_layanan          String?                  @db.VarChar(100)
+  estimasi_durasi        String?                  @db.VarChar(50)
+  catatan                String?                  @db.Text
+  detail_pesanan_layanan detail_pesanan_layanan[]
+  penjual                penjual?                 @relation(fields: [mitra_id], references: [mitra_id], onDelete: Restrict, onUpdate: Restrict, map: "layanan_ibfk_1")
+
+  @@index([mitra_id], map: "mitra_id")
+}
+
+model notifikasi {
+  notifikasi_id Int       @id @default(autoincrement())
+  user_id       Int?
+  mitra_id      Int?
+  isi_pesan     String?   @db.Text
+  waktu_kirim   DateTime? @db.DateTime(0)
+  tipe          String?   @db.VarChar(50)
+  status_dibaca Boolean?
+  pembeli       pembeli?  @relation(fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: Restrict, map: "notifikasi_ibfk_1")
+  penjual       penjual?  @relation(fields: [mitra_id], references: [mitra_id], onDelete: Restrict, onUpdate: Restrict, map: "notifikasi_ibfk_2")
+
+  @@index([mitra_id], map: "mitra_id")
+  @@index([user_id], map: "user_id")
+}
+
+model pembayaran {
+  pembayaran_id     Int       @id @default(autoincrement())
+  pesanan_id        Int?
+  status_pembayaran String?   @db.VarChar(50)
+  metode_pembayaran String?   @db.VarChar(50)
+  waktu_pembayaran  DateTime? @db.DateTime(0)
+  pesanan           pesanan?  @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "pembayaran_ibfk_1")
+
+  @@index([pesanan_id], map: "pesanan_id")
+}
+
+model pembeli {
+  user_id           Int          @id @default(autoincrement())
+  nama              String?      @db.VarChar(100)
+  nomer_hp          String?      @db.VarChar(20)
+  email             String?      @db.VarChar(100)
+  alamat_pengiriman String?      @db.Text
+  password          String?      @db.VarChar(255)
+  notifikasi        notifikasi[]
+  pesanan           pesanan[]
+}
+
+model penjual {
+  mitra_id        Int            @id @default(autoincrement())
+  nama_pemilik    String?        @db.VarChar(100)
+  nama_toko       String?        @unique(map: "nama_toko") @db.VarChar(100)
+  deskripsi_toko  String?        @db.Text
+  jam_oprasional  String?        @db.VarChar(50)
+  verifikasi_toko Boolean?
+  status_toko     String?        @db.VarChar(50)
+  role_penjual    String?        @db.VarChar(50)
+  waktu_dibuat    DateTime?      @db.DateTime(0)
+  dompet_mitra    dompet_mitra[]
+  layanan         layanan[]
+  notifikasi      notifikasi[]
+  pesanan         pesanan[]
+  produk          produk[]
+}
+
+model pesanan {
+  pesanan_id             Int                      @id @default(autoincrement())
+  user_id                Int?
+  mitra_id               Int?
+  total_harga            Decimal?                 @db.Decimal(12, 2)
+  alamat_pengiriman      String?                  @db.Text
+  status_pesanan         String?                  @db.VarChar(50)
+  metode_pembayaran      String?                  @db.VarChar(50)
+  waktu_pesan            DateTime?                @db.DateTime(0)
+  waktu_dikirim          DateTime?                @db.DateTime(0)
+  waktu_diterima         DateTime?                @db.DateTime(0)
+  detail_pesanan_layanan detail_pesanan_layanan[]
+  detail_pesanan_produk  detail_pesanan_produk[]
+  pembayaran             pembayaran[]
+  pembeli                pembeli?                 @relation(fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: Restrict, map: "pesanan_ibfk_1")
+  penjual                penjual?                 @relation(fields: [mitra_id], references: [mitra_id], onDelete: Restrict, onUpdate: Restrict, map: "pesanan_ibfk_2")
+  ulasan                 ulasan[]
+
+  @@index([mitra_id], map: "mitra_id")
+  @@index([user_id], map: "user_id")
+}
+
+model produk {
+  produk_id             Int                     @id @default(autoincrement())
+  mitra_id              Int?
+  id_kategori           Int?
+  nama_produk           String?                 @db.VarChar(100)
+  harga                 Decimal?                @db.Decimal(12, 2)
+  foto                  String?                 @db.Text
+  status_ketersediaan   Boolean?
+  stok_produk           Int?
+  detail_pesanan_produk detail_pesanan_produk[]
+  penjual               penjual?                @relation(fields: [mitra_id], references: [mitra_id], onDelete: Restrict, onUpdate: Restrict, map: "produk_ibfk_1")
+  kategori              kategori?               @relation(fields: [id_kategori], references: [id_kategori], onDelete: Restrict, onUpdate: Restrict, map: "produk_ibfk_2")
+
+  @@index([id_kategori], map: "id_kategori")
+  @@index([mitra_id], map: "mitra_id")
+}
+
+model riwayat_dompet {
+  id_transaksi        Int           @id @default(autoincrement())
+  id_dompet           Int?
+  jenis_transaksi     String?       @db.VarChar(50)
+  jumlah_diterima     Decimal?      @db.Decimal(12, 2)
+  deskripsi_transaksi String?       @db.Text
+  waktu_transaksi     DateTime?     @db.DateTime(0)
+  dompet_mitra        dompet_mitra? @relation(fields: [id_dompet], references: [id_dompet], onDelete: Restrict, onUpdate: Restrict, map: "riwayat_dompet_ibfk_1")
+
+  @@index([id_dompet], map: "id_dompet")
+}
+
+model ulasan {
+  id_ulasan    Int       @id @default(autoincrement())
+  id_pesanan   Int?
+  rating       Int?
+  komentar     String?   @db.Text
+  waktu_ulasan DateTime? @db.DateTime(0)
+  pesanan      pesanan?  @relation(fields: [id_pesanan], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "ulasan_ibfk_1")
+
+  @@index([id_pesanan], map: "id_pesanan")
 }
