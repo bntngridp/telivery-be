@@ -16,7 +16,7 @@ Cheva-Telivery is a project for managing and tracking deliveries, built as part 
 
 1. Clone the repository:
   ```
-  git clone https://github.com/yourusername/cheva-telivery.git
+  git clone https://github.com/chevalierlab-sas/CLearn-TelIvery-Web-BE.git
   ```
 2. Install dependencies:
   ```
