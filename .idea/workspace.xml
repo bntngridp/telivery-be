@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e97c5575-0ae6-45d9-868b-91c312467d26" name="Changes" comment="" />
+    <list default="true" id="e97c5575-0ae6-45d9-868b-91c312467d26" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.schema.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.service.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,15 +32,18 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Node.js.auth.controller.ts.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "bntngridp",
     "last_opened_file_path": "/Users/bintang/Documents/GitHub Desktop/CLearn-TelIvery-Web-BE",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "/Users/bintang/Applications/WebStorm.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "/Users/bintang/Documents/GitHub Desktop/CLearn-TelIvery-Web-BE/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -53,10 +65,58 @@
       <workItem from="1752604777615" duration="33000" />
       <workItem from="1752864634417" duration="316000" />
       <workItem from="1753117633378" duration="1666000" />
+      <workItem from="1753119304712" duration="654000" />
+      <workItem from="1753119965764" duration="696000" />
+      <workItem from="1753120673432" duration="10746000" />
+      <workItem from="1753185294596" duration="2759000" />
+      <workItem from="1753428726840" duration="6030000" />
+      <workItem from="1753601470334" duration="11658000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/src/app.js" />
+        <option value="$PROJECT_DIR$/src/server.js" />
+        <option value="$PROJECT_DIR$/src/modules/auth/auth.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/auth/auth.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/auth/auth.service.js" />
+        <option value="$PROJECT_DIR$/src/modules/auth/auth.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/cart/cart.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/cart/cart.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/cart/cart.service.js" />
+        <option value="$PROJECT_DIR$/src/modules/cart/cart.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/user/user.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/user/user.service.js" />
+        <option value="$PROJECT_DIR$/src/modules/user/user.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/user/user.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/order/order.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/order/order.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/order/order.service.js" />
+        <option value="$PROJECT_DIR$/src/modules/order/order.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/partner/partner.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/partner/partner.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/partner/partner.service.js" />
+        <option value="$PROJECT_DIR$/src/modules/partner/partner.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/payment/payment.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/payment/payment.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/payment/payment.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/payment/payment.service.js" />
+        <option value="$PROJECT_DIR$/src/modules/product/product.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/product/product.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/product/product.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/product/product.service.js" />
+        <option value="$PROJECT_DIR$/src/modules/checkout/checkout.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/checkout/checkout.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/checkout/checkout.service.js" />
+        <option value="$PROJECT_DIR$/src/modules/checkout/checkout.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/notification/notification.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/notification/notification.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/notification/notification.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/notification/notification.service.js" />
+      </list>
+    </option>
   </component>
 </project>
