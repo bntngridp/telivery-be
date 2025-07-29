@@ -183,19 +183,3 @@ model ulasan {
 
   @@index([id_pesanan], map: "id_pesanan")
 }
-
-model User {
-  user_id        String    @id @default(uuid())
-  nama_lengkap   String
-  nomor_hp       String    @unique
-  tanggal_lahir  DateTime
-  domisili       String
-  fakultas       String
-  prodi          String
-  alamat_utama   String
-  foto           String? // opsional
-  otp            String?
-  otp_expired_at DateTime?
-  is_verified    Boolean   @default(false)
-  created_at     DateTime  @default(now())
-}
