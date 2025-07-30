@@ -8,27 +8,29 @@ datasource db {
 }
 
 model detail_pesanan_layanan {
-  id         Int     @id @default(autoincrement())
-  pesanan_id Int
-  layanan_id Int
-  jumlah     Int
-  subtotal   Decimal @db.Decimal(12, 2)
-  layanan    layanan @relation(fields: [layanan_id], references: [layanan_id], onDelete: Cascade)
-  pesanan    pesanan @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Cascade)
+  id_detail   Int      @id @default(autoincrement())
+  pesanan_id  Int?
+  layanan_id  Int?
+  jumlah_item Int?
+  subtotal    Decimal? @db.Decimal(12, 2)
+  pesanan     pesanan? @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_layanan_ibfk_1")
+  layanan     layanan? @relation(fields: [layanan_id], references: [layanan_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_layanan_ibfk_2")
 
-  @@unique([pesanan_id, layanan_id], map: "unique_pesanan_layanan")
+  @@unique([pesanan_id, layanan_id], map: "pesanan_id")
+  @@index([layanan_id], map: "layanan_id")
 }
 
 model detail_pesanan_produk {
-  id         Int     @id @default(autoincrement())
-  pesanan_id Int
-  produk_id  Int
-  jumlah     Int
-  subtotal   Decimal @db.Decimal(12, 2)
-  produk     produk  @relation(fields: [produk_id], references: [produk_id], onDelete: Cascade)
-  pesanan    pesanan @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Cascade)
+  id_detail   Int      @id @default(autoincrement())
+  pesanan_id  Int?
+  produk_id   Int?
+  jumlah_item Int?
+  subtotal    Decimal? @db.Decimal(12, 2)
+  pesanan     pesanan? @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_produk_ibfk_1")
+  produk      produk?  @relation(fields: [produk_id], references: [produk_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_produk_ibfk_2")
 
-  @@unique([pesanan_id, produk_id], map: "unique_pesanan_produk")
+  @@unique([pesanan_id, produk_id], map: "pesanan_id")
+  @@index([produk_id], map: "produk_id")
 }
 
 model dompet_mitra {
@@ -93,15 +95,15 @@ model pembayaran {
 
 model pembeli {
   user_id          Int          @id @default(autoincrement())
-  full_name        String       @db.VarChar(100)
-  birth_date       DateTime
-  domicile         String       @db.VarChar(100)
-  faculty          String       @db.VarChar(100)
-  major            String       @db.VarChar(100)
-  phone_number     String       @db.VarChar(20)
-  email            String       @db.VarChar(100)
-  delivery_address String       @db.Text
+  email            String?      @db.VarChar(100)
   password         String?      @db.VarChar(255)
+  domicile         String?      @db.VarChar(100)
+  faculty          String?      @db.VarChar(100)
+  major            String?      @db.VarChar(100)
+  delivery_address String?      @db.Text
+  phone_number     String?      @db.VarChar(20)
+  full_name        String?      @db.VarChar(100)
+  birth_date       DateTime?
   notifications    notifikasi[] @relation("PembeliNotifikasi")
   orders           pesanan[]    @relation("PembeliPesanan")
 }
@@ -183,4 +185,12 @@ model ulasan {
   pesanan      pesanan?  @relation(fields: [id_pesanan], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "ulasan_ibfk_1")
 
   @@index([id_pesanan], map: "id_pesanan")
+}
+
+model otp_verify {
+  id        Int      @id @default(autoincrement())
+  phone     String   @db.VarChar(20)
+  otp       String   @db.VarChar(5)
+  expiredAt DateTime
+  createdAt DateTime @default(now())
 }

@@ -8,11 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prisma/migrations/20250727202522_init/migration.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/prisma/migrations/migration_lock.toml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.controller.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.controller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.routes.js" afterDir="false" />
@@ -81,7 +77,9 @@
       <workItem from="1753601470334" duration="13070000" />
       <workItem from="1753647902875" duration="14388000" />
       <workItem from="1753719971510" duration="18852000" />
-      <workItem from="1753894864713" duration="2827000" />
+      <workItem from="1753894864713" duration="4462000" />
+      <workItem from="1753899348846" duration="1835000" />
+      <workItem from="1753901200140" duration="1748000" />
     </task>
     <servers />
   </component>
