@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -9,29 +8,27 @@ datasource db {
 }
 
 model detail_pesanan_layanan {
-  id_detail   Int      @id @default(autoincrement())
-  pesanan_id  Int?
-  layanan_id  Int?
-  jumlah_item Int?
-  subtotal    Decimal? @db.Decimal(12, 2)
-  pesanan     pesanan? @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_layanan_ibfk_1")
-  layanan     layanan? @relation(fields: [layanan_id], references: [layanan_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_layanan_ibfk_2")
+  id         Int     @id @default(autoincrement())
+  pesanan_id Int
+  layanan_id Int
+  jumlah     Int
+  subtotal   Decimal @db.Decimal(12, 2)
+  layanan    layanan @relation(fields: [layanan_id], references: [layanan_id], onDelete: Cascade)
+  pesanan    pesanan @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Cascade)
 
-  @@unique([pesanan_id, layanan_id], map: "pesanan_id")
-  @@index([layanan_id], map: "layanan_id")
+  @@unique([pesanan_id, layanan_id], map: "unique_pesanan_layanan")
 }
 
 model detail_pesanan_produk {
-  id_detail   Int      @id @default(autoincrement())
-  pesanan_id  Int?
-  produk_id   Int?
-  jumlah_item Int?
-  subtotal    Decimal? @db.Decimal(12, 2)
-  pesanan     pesanan? @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_produk_ibfk_1")
-  produk      produk?  @relation(fields: [produk_id], references: [produk_id], onDelete: Restrict, onUpdate: Restrict, map: "detail_pesanan_produk_ibfk_2")
+  id         Int     @id @default(autoincrement())
+  pesanan_id Int
+  produk_id  Int
+  jumlah     Int
+  subtotal   Decimal @db.Decimal(12, 2)
+  produk     produk  @relation(fields: [produk_id], references: [produk_id], onDelete: Cascade)
+  pesanan    pesanan @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Cascade)
 
-  @@unique([pesanan_id, produk_id], map: "pesanan_id")
-  @@index([produk_id], map: "produk_id")
+  @@unique([pesanan_id, produk_id], map: "unique_pesanan_produk")
 }
 
 model dompet_mitra {
@@ -76,7 +73,7 @@ model notifikasi {
   waktu_kirim   DateTime? @db.DateTime(0)
   tipe          String?   @db.VarChar(50)
   status_dibaca Boolean?
-  pembeli       pembeli?  @relation(fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: Restrict, map: "notifikasi_ibfk_1")
+  pembeli       pembeli?  @relation("PembeliNotifikasi", fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: Restrict, map: "notifikasi_ibfk_1")
   penjual       penjual?  @relation(fields: [mitra_id], references: [mitra_id], onDelete: Restrict, onUpdate: Restrict, map: "notifikasi_ibfk_2")
 
   @@index([mitra_id], map: "mitra_id")
@@ -95,14 +92,18 @@ model pembayaran {
 }
 
 model pembeli {
-  user_id           Int          @id @default(autoincrement())
-  nama              String?      @db.VarChar(100)
-  nomer_hp          String?      @db.VarChar(20)
-  email             String?      @db.VarChar(100)
-  alamat_pengiriman String?      @db.Text
-  password          String?      @db.VarChar(255)
-  notifikasi        notifikasi[]
-  pesanan           pesanan[]
+  user_id          Int          @id @default(autoincrement())
+  full_name        String       @db.VarChar(100)
+  birth_date       DateTime
+  domicile         String       @db.VarChar(100)
+  faculty          String       @db.VarChar(100)
+  major            String       @db.VarChar(100)
+  phone_number     String       @db.VarChar(20)
+  email            String       @db.VarChar(100)
+  delivery_address String       @db.Text
+  password         String?      @db.VarChar(255)
+  notifications    notifikasi[] @relation("PembeliNotifikasi")
+  orders           pesanan[]    @relation("PembeliPesanan")
 }
 
 model penjual {
@@ -136,7 +137,7 @@ model pesanan {
   detail_pesanan_layanan detail_pesanan_layanan[]
   detail_pesanan_produk  detail_pesanan_produk[]
   pembayaran             pembayaran[]
-  pembeli                pembeli?                 @relation(fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: Restrict, map: "pesanan_ibfk_1")
+  pembeli                pembeli?                 @relation("PembeliPesanan", fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: Restrict, map: "pesanan_ibfk_1")
   penjual                penjual?                 @relation(fields: [mitra_id], references: [mitra_id], onDelete: Restrict, onUpdate: Restrict, map: "pesanan_ibfk_2")
   ulasan                 ulasan[]
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import userRoutes from './modules/user/user.routes';
+import authRoutes from './modules/auth/auth.routes';
 
 const app = express();
 
@@ -7,6 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
 
 // Define routes
 app.get('/', (req, res) => {
