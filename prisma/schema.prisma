@@ -109,20 +109,28 @@ model pembeli {
 }
 
 model penjual {
-  mitra_id        Int            @id @default(autoincrement())
-  nama_pemilik    String?        @db.VarChar(100)
-  nama_toko       String?        @unique(map: "nama_toko") @db.VarChar(100)
-  deskripsi_toko  String?        @db.Text
-  jam_oprasional  String?        @db.VarChar(50)
-  verifikasi_toko Boolean?
-  status_toko     String?        @db.VarChar(50)
-  role_penjual    String?        @db.VarChar(50)
-  waktu_dibuat    DateTime?      @db.DateTime(0)
-  dompet_mitra    dompet_mitra[]
-  layanan         layanan[]
-  notifikasi      notifikasi[]
-  pesanan         pesanan[]
-  produk          produk[]
+  mitra_id          Int            @id @default(autoincrement())
+  phone_number      String?        @db.VarChar(20)
+  email             String?        @db.VarChar(100)
+  password          String?        @db.VarChar(255)
+  jenis_usaha       String?        @db.VarChar(50)
+  foto_ktp_pemilik  String?        @db.Text
+  alamat_toko       String?        @db.Text
+  foto_pemilik      String?        @db.Text
+  status_verifikasi String?        @db.VarChar(50)
+  nama_pemilik      String?        @db.VarChar(100)
+  nama_toko         String?        @unique(map: "nama_toko") @db.VarChar(100)
+  deskripsi_toko    String?        @db.Text
+  jam_oprasional    String?        @db.VarChar(50)
+  verifikasi_toko   Boolean?
+  status_toko       String?        @db.VarChar(50)
+  role_penjual      String?        @db.VarChar(50)
+  waktu_dibuat      DateTime?      @db.DateTime(0)
+  dompet_mitra      dompet_mitra[]
+  layanan           layanan[]
+  notifikasi        notifikasi[]
+  pesanan           pesanan[]
+  produk            produk[]
 }
 
 model pesanan {
