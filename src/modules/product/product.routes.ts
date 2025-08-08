@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import {
-  // Seller controllers
   createProduct,
   getAllProducts,
   getProductById,
@@ -10,7 +9,6 @@ import {
   deleteProduct,
   deleteAllProducts,
 
-  // Buyer controllers
   getAllProductsForBuyer,
   getProductByIdForBuyer,
   getProductsByCategoryForBuyer,
@@ -23,7 +21,6 @@ import { uploadProductImage } from '../middlewares/multer.seller';
 
 const router = Router();
 
-// === SELLER ROUTES ===
 router.post('/seller/create', jwtMiddleware, uploadProductImage, createProduct);
 router.get('/seller', jwtMiddleware, getAllProducts);
 router.get('/seller/category/:category', jwtMiddleware, getProductsByCategory);
@@ -33,7 +30,6 @@ router.patch('/seller/:id/stock', jwtMiddleware, updateProductStock);
 router.delete('/seller/:id', jwtMiddleware, deleteProduct);
 router.delete('/seller', jwtMiddleware, deleteAllProducts);
 
-// === BUYER ROUTES ===
 router.get('/buyer', getAllProductsForBuyer);
 router.get('/buyer/popular', getPopularProducts);
 router.get('/buyer/recommendations', getProductRecommendations);

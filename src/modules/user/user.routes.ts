@@ -3,7 +3,6 @@ import * as userController from './user.controller';
 
 const router = Router();
 
-// Test API: Random quote
 router.get('/random-quote', userController.getRandomQuote);
 
 router.get('/', userController.getUsers);
