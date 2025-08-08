@@ -76,7 +76,6 @@ export const buyerProductService = {
   async getProductsByCategory(kategoriParam: string, page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
 
-    // Convert URL-friendly parameter to DB category
     let kategori: string;
     switch(kategoriParam) {
       case 'makanan-minuman':
@@ -240,7 +239,6 @@ export const buyerProductService = {
       take: limit
     });
 
-    // Reformat to remove sensitive details
     const formattedProducts = popularProducts.map(product => {
       const { detail_pesanan_produk, ...rest } = product;
       return {

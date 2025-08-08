@@ -3,6 +3,7 @@ import express from 'express';
 import userRoutes from './modules/user/user.routes';
 import authRoutes from './modules/auth/auth.routes';
 import productRoutes from './modules/product/product.routes';
+import buyerStoreRoutes from './modules/store/store.routes';
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/product', productRoutes);
+app.use('/api/buyer/stores', buyerStoreRoutes);
 
 // Define routes
 app.get('/', (req, res) => {
