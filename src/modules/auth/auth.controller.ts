@@ -5,7 +5,6 @@ import {
     verifyOtpSchema,
     requestSellerOtpSchema,
     verifyOtpAndRegisterSellerSchema,
-    registerSellerStoreSchema,
     forgotPasswordSellerSchema,
     verifyResetOtpSellerSchema,
     resetPasswordSellerSchema
@@ -93,19 +92,15 @@ export const verifyOtpAndRegisterSeller = async (req: Request, res: Response) =>
 };
 
 export const registerSellerStore = async (req: Request, res: Response) => {
-    // Ambil sellerId dari JWT (misal sudah ada middleware auth)
     const sellerId = (req as any).user?.sellerId;
     if (!sellerId) return res.status(401).json({ message: "Unauthorized" });
 
-    // Ambil file path dari req.files
     const files = req.files as Record<string, Express.Multer.File[]>;
     const ownerKtpPhoto = files?.ownerKtpPhoto?.[0]?.path || "";
     const ownerFacePhoto = files?.ownerFacePhoto?.[0]?.path || "";
 
-    // Ambil data lain dari body
     const { businessType, storeName, storeAddress } = req.body;
 
-    // Validasi manual (karena file tidak divalidasi oleh zod)
     if (!businessType || !storeName || !storeAddress || !ownerKtpPhoto || !ownerFacePhoto) {
         return res.status(400).json({ message: "Data tidak lengkap" });
     }

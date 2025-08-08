@@ -5,22 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e97c5575-0ae6-45d9-868b-91c312467d26" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/modules/auth/jwt.middleware.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/modules/auth/multer.seller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilotDiffState.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilotDiffState.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.controller.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.routes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.routes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.schema.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.schema.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.schema.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/auth/jwt.middleware.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/middlewares/jwt.middleware.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/auth/jwt.middleware.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/middlewares/jwt.middleware.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/auth/multer.seller.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/middlewares/multer.seller.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/auth/multer.seller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/middlewares/multer.seller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/product/product.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/product/product.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/product/product.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/product/product.routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/product/product.schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/product/product.schema.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/product/product.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/product/product.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,23 +37,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Node.js.auth.controller.ts.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "bntngridp",
-    "last_opened_file_path": "/Users/bintang/Documents/GitHub Desktop/CLearn-TelIvery-Web-BE",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/Users/bintang/Documents/GitHub Desktop/CLearn-TelIvery-Web-BE/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Node.js.auth.controller.ts.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/bintang/Documents/GitHub Desktop/CLearn-TelIvery-Web-BE&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.github.copilot.settings.general.GeneralConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/bintang/Documents/GitHub Desktop/CLearn-TelIvery-Web-BE/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/modules/middlewares" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -88,6 +92,9 @@
       <workItem from="1753907641825" duration="3037000" />
       <workItem from="1754297517252" duration="1218000" />
       <workItem from="1754302823031" duration="25307000" />
+      <workItem from="1754576276418" duration="890000" />
+      <workItem from="1754577312840" duration="2895000" />
+      <workItem from="1754584812278" duration="96000" />
     </task>
     <servers />
   </component>
@@ -133,9 +140,17 @@
         <option value="$PROJECT_DIR$/src/modules/partner/partner.service.js" />
         <option value="$PROJECT_DIR$/src/modules/partner/partner.controller.js" />
         <option value="$PROJECT_DIR$/src/modules/order/order.schema.js" />
-        <option value="$PROJECT_DIR$/src/modules/auth/multer.seller.js" />
-        <option value="$PROJECT_DIR$/src/modules/auth/jwt.middleware.js" />
       </list>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/modules/auth/auth.service.ts</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

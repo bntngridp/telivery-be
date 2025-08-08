@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import userRoutes from './modules/user/user.routes';
 import authRoutes from './modules/auth/auth.routes';
+import productRoutes from './modules/product/product.routes';
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/product', productRoutes);
 
 // Define routes
 app.get('/', (req, res) => {

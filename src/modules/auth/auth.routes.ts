@@ -11,14 +11,15 @@ import {
   verifyResetOtpSeller,
   resetPasswordSeller
 } from "./auth.controller";
-import { uploadSellerDocs } from "./multer.seller";
-import { jwtMiddleware } from "./jwt.middleware";
+import { uploadSellerDocs } from "../middlewares/multer.seller";
+import { jwtMiddleware } from "../middlewares/jwt.middleware";
 
 const router = Router();
 
 router.post("/buyer/register", registerBuyer);
 router.post("/buyer/request-otp", loginOtp);
 router.post("/buyer/verify-otp", verifyOtp);
+
 router.post("/seller/request-otp", requestSellerOtp);
 router.post("/seller/verify-otp", verifyOtpAndRegisterSeller);
 router.post("/seller/register", verifyOtpAndRegisterSeller);

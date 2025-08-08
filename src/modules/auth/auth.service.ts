@@ -38,7 +38,6 @@ export const authService = {
             throw new Error("Nomor atau email sudah terdaftar.");
         }
 
-        // Simpan data pembeli baru
         const newBuyer = await prisma.pembeli.create({
             data: {
                 full_name: data.fullName,
@@ -49,10 +48,8 @@ export const authService = {
                 faculty: data.faculty,
                 major: data.major,
                 email: data.email,
-                // password: ... (jika ada)
             }
         });
-        // Generate OTP
         const otp = Math.floor(10000 + Math.random() * 90000).toString();
         const expiredAt = new Date(Date.now() + OTP_EXPIRE_MINUTES * 60000);
         await prisma.otp_verify.create({
@@ -62,7 +59,6 @@ export const authService = {
                 expiredAt,
             }
         });
-        // Simulasi kirim OTP via console
         console.log(`OTP ${otp} dikirim ke ${data.phoneNumber}`);
         return {
             message: "Register berhasil. OTP dikirim ke nomor kamu.",
@@ -76,7 +72,6 @@ export const authService = {
         if (!buyer) {
             throw new Error("Nomor telepon tidak terdaftar sebagai pembeli.");
         }
-        // Generate OTP
         const otp = Math.floor(10000 + Math.random() * 90000).toString();
         const expiredAt = new Date(Date.now() + OTP_EXPIRE_MINUTES * 60000);
         await prisma.otp_verify.create({
@@ -86,7 +81,6 @@ export const authService = {
                 expiredAt,
             }
         });
-        // Simulasi kirim OTP via console
         console.log(`OTP ${otp} dikirim ke ${data.phoneNumber}`);
         return { message: "OTP dikirim ke nomor kamu." };
     },
@@ -108,10 +102,8 @@ export const authService = {
         if (!buyer) {
             throw new Error("Pembeli tidak ditemukan.");
         }
-        // Generate JWT
         console.debug("[DEBUG verifyOtp] JWT_SECRET:", JWT_SECRET);
         const token = generateToken({ id: buyer.user_id, role: "pembeli" }, "1d");
-        // Hapus OTP setelah sukses verifikasi
         await prisma.otp_verify.delete({ where: { id: otpRecord.id } });
         return { token };
     },
@@ -119,7 +111,6 @@ export const authService = {
 
 
     async requestSellerOtp(data: RequestSellerOtpDto) {
-        // Generate OTP
         const otp = Math.floor(10000 + Math.random() * 90000).toString();
         const expiredAt = new Date(Date.now() + OTP_EXPIRE_MINUTES * 60000);
         await prisma.otp_verify.create({
@@ -134,7 +125,6 @@ export const authService = {
     },
 
     async verifyOtpAndRegisterSeller(data: VerifyOtpAndRegisterSellerDto) {
-        // Cek OTP
         const otpRecord = await prisma.otp_verify.findFirst({
             where: {
                 phone: data.phoneNumber,
@@ -143,7 +133,6 @@ export const authService = {
             }
         });
         if (!otpRecord) throw new Error("OTP salah atau sudah expired.");
-        // Cek email/phone sudah terdaftar
         const existing = await prisma.penjual.findFirst({
             where: {
                 OR: [
@@ -155,7 +144,7 @@ export const authService = {
         if (existing) throw new Error("Nomor atau email sudah terdaftar sebagai penjual.");
         // Hash password
         const hashedPassword = await bcrypt.hash(data.password, 10);
-        // Simpan penjual
+
         const seller = await prisma.penjual.create({
             data: {
                 phone_number: data.phoneNumber,
@@ -163,9 +152,8 @@ export const authService = {
                 password: hashedPassword
             }
         });
-        // Hapus OTP
         await prisma.otp_verify.delete({ where: { id: otpRecord.id } });
-        // Generate JWT
+
         console.debug("[DEBUG verifyOtpAndRegisterSeller] JWT_SECRET:", JWT_SECRET);
         const token = generateToken({ sellerId: seller.mitra_id, role: "penjual" }, "7d");
         return { token };
@@ -197,7 +185,6 @@ export const authService = {
     },
 
     async forgotPasswordSeller(data: ForgotPasswordSellerDto) {
-        // Cari penjual berdasarkan email atau phoneNumber
         const seller = await prisma.penjual.findFirst({
             where: {
                 OR: [
@@ -207,7 +194,6 @@ export const authService = {
             },
         });
         if (!seller) throw new Error("Penjual tidak ditemukan.");
-        // Generate OTP
         const otp = Math.floor(10000 + Math.random() * 90000).toString();
         const expiredAt = new Date(Date.now() + OTP_EXPIRE_MINUTES * 60000);
         await prisma.otp_verify.create({
@@ -217,13 +203,11 @@ export const authService = {
                 expiredAt,
             },
         });
-        // Simulasi kirim OTP via console
         console.log(`OTP reset password ${otp} dikirim ke ${seller.phone_number || seller.email}`);
         return { message: "OTP reset password dikirim." };
     },
 
     async verifyResetOtpSeller(data: VerifyResetOtpSellerDto) {
-        // Cari OTP
         const seller = await prisma.penjual.findFirst({
             where: {
                 OR: [
@@ -245,7 +229,6 @@ export const authService = {
     },
 
     async resetPasswordSeller(data: ResetPasswordSellerDto) {
-        // Cari penjual
         const seller = await prisma.penjual.findFirst({
             where: {
                 OR: [
@@ -255,7 +238,6 @@ export const authService = {
             },
         });
         if (!seller) throw new Error("Penjual tidak ditemukan.");
-        // Cari OTP
         const otpRecord = await prisma.otp_verify.findFirst({
             where: {
                 phone: seller.phone_number || "",
@@ -264,13 +246,11 @@ export const authService = {
             },
         });
         if (!otpRecord) throw new Error("OTP salah atau sudah expired.");
-        // Update password
         const hashedPassword = await bcrypt.hash(data.newPassword, 10);
         await prisma.penjual.update({
             where: { mitra_id: seller.mitra_id },
             data: { password: hashedPassword },
         });
-        // Hapus OTP
         await prisma.otp_verify.delete({ where: { id: otpRecord.id } });
         return { message: "Password berhasil direset." };
     },
