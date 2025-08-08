@@ -10,7 +10,6 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const product_service_1 = require("./product.service");
 const prisma = new client_1.PrismaClient();
-// SELLER CONTROLLERS
 const createProduct = async (req, res) => {
     try {
         const user = req.user;
@@ -21,7 +20,6 @@ const createProduct = async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ message: 'Gambar produk wajib diupload.' });
         }
-        // Cari id_kategori dari nama kategori
         const kategoriRecord = await prisma.kategori.findFirst({
             where: { nama_kategori: kategori }
         });
@@ -29,19 +27,15 @@ const createProduct = async (req, res) => {
             return res.status(400).json({ message: 'Kategori tidak ditemukan di database.' });
         }
         const id_kategori = kategoriRecord.id_kategori;
-        // Pastikan direktori upload ada
         const uploadDir = path_1.default.join(__dirname, '../../../documents/products');
         if (!fs_1.default.existsSync(uploadDir)) {
             fs_1.default.mkdirSync(uploadDir, { recursive: true });
         }
-        // Generate nama file unik
         const ext = path_1.default.extname(req.file.originalname);
         const fileName = `produk-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
         const filePath = path_1.default.join(uploadDir, fileName);
-        // Simpan file
         fs_1.default.writeFileSync(filePath, req.file.buffer);
         const pathGambar = `/documents/products/${fileName}`;
-        // Buat produk di database
         const produk = await (0, product_service_1.createProductService)({
             nama,
             harga: harga.toString(),
@@ -63,7 +57,6 @@ const createProduct = async (req, res) => {
     }
 };
 exports.createProduct = createProduct;
-// GET /api/seller/product - Ambil semua produk milik seller
 const getAllProducts = async (req, res) => {
     try {
         const user = req.user;
@@ -75,7 +68,6 @@ const getAllProducts = async (req, res) => {
             include: {
                 kategori: true
             }
-            // Removed orderBy clause as waktu_dibuat doesn't exist in produk model
         });
         return res.status(200).json({
             message: 'Produk berhasil diambil',
@@ -88,7 +80,6 @@ const getAllProducts = async (req, res) => {
     }
 };
 exports.getAllProducts = getAllProducts;
-// GET /api/seller/product/:id - Ambil detail satu produk
 const getProductById = async (req, res) => {
     try {
         const user = req.user;
@@ -122,7 +113,6 @@ const getProductById = async (req, res) => {
     }
 };
 exports.getProductById = getProductById;
-// GET /api/seller/product/category/:category - Ambil produk berdasarkan kategori
 const getProductsByCategory = async (req, res) => {
     try {
         const user = req.user;
@@ -130,7 +120,6 @@ const getProductsByCategory = async (req, res) => {
             return res.status(403).json({ message: 'Unauthorized, hanya penjual yang dapat mengakses produk.' });
         }
         const category = req.params.category.toUpperCase();
-        // Cari kategori berdasarkan nama
         const kategoriRecord = await prisma.kategori.findFirst({
             where: { nama_kategori: category }
         });
@@ -158,7 +147,6 @@ const getProductsByCategory = async (req, res) => {
     }
 };
 exports.getProductsByCategory = getProductsByCategory;
-// PUT /api/seller/product/:id - Update data produk
 const updateProduct = async (req, res) => {
     try {
         const user = req.user;
@@ -190,7 +178,6 @@ const updateProduct = async (req, res) => {
         }
         console.log('Existing Product:', existingProduct);
         let id_kategori = existingProduct.id_kategori;
-        // Jika kategori diupdate, cari id_kategori baru
         if (parsed.data.kategori) {
             console.log('Finding category:', parsed.data.kategori);
             const kategoriRecord = await prisma.kategori.findFirst({
@@ -202,7 +189,6 @@ const updateProduct = async (req, res) => {
             }
             id_kategori = kategoriRecord.id_kategori;
         }
-        // Handle upload gambar baru jika ada
         let pathGambar = existingProduct.foto;
         if (req.file) {
             console.log('Processing new image file');
@@ -210,7 +196,6 @@ const updateProduct = async (req, res) => {
             if (!fs_1.default.existsSync(uploadDir)) {
                 fs_1.default.mkdirSync(uploadDir, { recursive: true });
             }
-            // Check if buffer exists
             if (!req.file.buffer) {
                 console.error('File buffer is undefined');
                 return res.status(400).json({ message: 'File upload error: Empty file buffer' });
@@ -218,10 +203,8 @@ const updateProduct = async (req, res) => {
             const ext = path_1.default.extname(req.file.originalname);
             const fileName = `produk-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
             const filePath = path_1.default.join(uploadDir, fileName);
-            // Save file
             fs_1.default.writeFileSync(filePath, req.file.buffer);
             pathGambar = `/documents/products/${fileName}`;
-            // Hapus gambar lama jika ada
             if (existingProduct.foto) {
                 const oldFilePath = path_1.default.join(__dirname, '../../../', existingProduct.foto);
                 if (fs_1.default.existsSync(oldFilePath)) {
@@ -229,7 +212,6 @@ const updateProduct = async (req, res) => {
                 }
             }
         }
-        // Update data produk
         const updateData = {
             id_kategori,
             foto: pathGambar
@@ -265,7 +247,6 @@ const updateProduct = async (req, res) => {
     }
 };
 exports.updateProduct = updateProduct;
-// PATCH /api/seller/product/:id/stock - Update stok produk
 const updateProductStock = async (req, res) => {
     try {
         const user = req.user;
@@ -283,7 +264,6 @@ const updateProductStock = async (req, res) => {
                 errors: parsed.error.flatten().fieldErrors
             });
         }
-        // Cek apakah produk milik seller yang login
         const existingProduct = await prisma.produk.findFirst({
             where: {
                 produk_id: id,
@@ -297,7 +277,6 @@ const updateProductStock = async (req, res) => {
             where: { produk_id: id },
             data: {
                 stok_produk: parsed.data.stok
-                // Remove updatedAt, it doesn't exist in the schema
             },
             include: {
                 kategori: true
@@ -314,7 +293,6 @@ const updateProductStock = async (req, res) => {
     }
 };
 exports.updateProductStock = updateProductStock;
-// DELETE /api/seller/product/:id - Hapus satu produk
 const deleteProduct = async (req, res) => {
     try {
         const user = req.user;
@@ -325,7 +303,6 @@ const deleteProduct = async (req, res) => {
         if (isNaN(id)) {
             return res.status(400).json({ message: 'ID produk tidak valid' });
         }
-        // Cek apakah produk milik seller yang login
         const existingProduct = await prisma.produk.findFirst({
             where: {
                 produk_id: id,
@@ -335,7 +312,6 @@ const deleteProduct = async (req, res) => {
         if (!existingProduct) {
             return res.status(404).json({ message: 'Produk tidak ditemukan' });
         }
-        // Hapus gambar produk jika ada
         if (existingProduct.foto) {
             const filePath = path_1.default.join(__dirname, '../../../', existingProduct.foto);
             if (fs_1.default.existsSync(filePath)) {
@@ -355,18 +331,15 @@ const deleteProduct = async (req, res) => {
     }
 };
 exports.deleteProduct = deleteProduct;
-// DELETE /api/seller/product - Hapus semua produk milik seller
 const deleteAllProducts = async (req, res) => {
     try {
         const user = req.user;
         if (!user || user.role !== 'penjual') {
             return res.status(403).json({ message: 'Unauthorized, hanya penjual yang dapat menghapus produk.' });
         }
-        // Ambil semua produk milik seller untuk hapus gambar
         const products = await prisma.produk.findMany({
             where: { mitra_id: user.sellerId }
         });
-        // Hapus semua gambar produk
         products.forEach(product => {
             if (product.foto) {
                 const filePath = path_1.default.join(__dirname, '../../../', product.foto);
@@ -388,10 +361,6 @@ const deleteAllProducts = async (req, res) => {
     }
 };
 exports.deleteAllProducts = deleteAllProducts;
-// BUYER CONTROLLERS
-/**
- * Get all available products for buyers
- */
 const getAllProductsForBuyer = async (req, res) => {
     try {
         const products = await prisma.produk.findMany({
@@ -430,9 +399,6 @@ const getAllProductsForBuyer = async (req, res) => {
     }
 };
 exports.getAllProductsForBuyer = getAllProductsForBuyer;
-/**
- * Get product details by ID for buyers
- */
 const getProductByIdForBuyer = async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -480,9 +446,6 @@ const getProductByIdForBuyer = async (req, res) => {
     }
 };
 exports.getProductByIdForBuyer = getProductByIdForBuyer;
-/**
- * Get products by category for buyers
- */
 const getProductsByCategoryForBuyer = async (req, res) => {
     try {
         const categoryParam = req.params.kategori.toUpperCase();
@@ -501,7 +464,6 @@ const getProductsByCategoryForBuyer = async (req, res) => {
             default:
                 kategori = categoryParam;
         }
-        // Find the category ID
         const kategoriRecord = await prisma.kategori.findFirst({
             where: { nama_kategori: kategori }
         });

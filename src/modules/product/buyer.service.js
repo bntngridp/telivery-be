@@ -4,9 +4,6 @@ exports.buyerProductService = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 exports.buyerProductService = {
-    /**
-     * Mendapatkan semua produk yang tersedia
-     */
     async getAllProducts(page = 1, limit = 10) {
         const skip = (page - 1) * limit;
         const [products, totalCount] = await Promise.all([
@@ -52,9 +49,6 @@ exports.buyerProductService = {
             }
         };
     },
-    /**
-     * Mendapatkan detail produk berdasarkan ID
-     */
     async getProductById(id) {
         const product = await prisma.produk.findFirst({
             where: {
@@ -75,9 +69,6 @@ exports.buyerProductService = {
         });
         return product;
     },
-    /**
-     * Mendapatkan produk berdasarkan kategori
-     */
     async getProductsByCategory(kategoriParam, page = 1, limit = 10) {
         const skip = (page - 1) * limit;
         // Convert URL-friendly parameter to DB category
@@ -95,7 +86,6 @@ exports.buyerProductService = {
             default:
                 kategori = kategoriParam.toUpperCase();
         }
-        // Find the category ID
         const kategoriRecord = await prisma.kategori.findFirst({
             where: { nama_kategori: kategori }
         });
@@ -148,9 +138,6 @@ exports.buyerProductService = {
             }
         };
     },
-    /**
-     * Mencari produk berdasarkan keyword
-     */
     async searchProducts(keyword, page = 1, limit = 10) {
         const skip = (page - 1) * limit;
         const [products, totalCount] = await Promise.all([
@@ -214,9 +201,6 @@ exports.buyerProductService = {
             }
         };
     },
-    /**
-     * Mendapatkan produk populer berdasarkan jumlah pesanan
-     */
     async getPopularProducts(limit = 10) {
         const popularProducts = await prisma.produk.findMany({
             where: {
@@ -252,9 +236,6 @@ exports.buyerProductService = {
         });
         return formattedProducts;
     },
-    /**
-     * Mendapatkan rekomendasi produk untuk pembeli
-     */
     async getProductRecommendations(userId, limit = 10) {
         let recommendedProducts;
         if (userId) {
@@ -278,13 +259,11 @@ exports.buyerProductService = {
                 },
                 take: 5
             });
-            // Extract categories from previous orders
             const orderedCategoryIds = userOrders
                 .flatMap(order => order.detail_pesanan_produk)
                 .map(detail => detail.produk?.id_kategori)
                 .filter(Boolean);
             if (orderedCategoryIds.length > 0) {
-                // Find products in the same categories
                 recommendedProducts = await prisma.produk.findMany({
                     where: {
                         id_kategori: {

@@ -7,7 +7,6 @@ exports.logFileInfo = exports.uploadProductImage = exports.uploadSellerDocs = vo
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-// Configure storage for disk
 const diskStorage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         let dest = "./documents/";

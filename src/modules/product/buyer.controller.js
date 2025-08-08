@@ -4,10 +4,6 @@ exports.buyerProductController = void 0;
 const buyer_service_1 = require("./buyer.service");
 const buyer_schema_1 = require("./buyer.schema");
 exports.buyerProductController = {
-    /**
-     * GET /buyer/products
-     * Mengambil semua produk yang tersedia
-     */
     async getAllProducts(req, res) {
         try {
             const pagination = buyer_schema_1.paginationSchema.parse(req.query);
@@ -28,10 +24,6 @@ exports.buyerProductController = {
             });
         }
     },
-    /**
-     * GET /buyer/products/:id
-     * Mengambil detail produk berdasarkan ID
-     */
     async getProductById(req, res) {
         try {
             const { id } = buyer_schema_1.productIdSchema.parse(req.params);
@@ -64,10 +56,6 @@ exports.buyerProductController = {
             });
         }
     },
-    /**
-     * GET /buyer/products/category/:kategori
-     * Filter produk berdasarkan kategori
-     */
     async getProductsByCategory(req, res) {
         try {
             const { kategori } = buyer_schema_1.productCategorySchema.parse(req.params);
@@ -102,10 +90,6 @@ exports.buyerProductController = {
             });
         }
     },
-    /**
-     * GET /buyer/products/search?q=keyword
-     * Mencari produk berdasarkan nama/deskripsi
-     */
     async searchProducts(req, res) {
         try {
             const { q } = buyer_schema_1.productSearchSchema.parse(req.query);
@@ -135,10 +119,6 @@ exports.buyerProductController = {
             });
         }
     },
-    /**
-     * GET /buyer/products/popular
-     * Mengambil produk paling populer
-     */
     async getPopularProducts(req, res) {
         try {
             const pagination = buyer_schema_1.paginationSchema.parse(req.query);
@@ -158,14 +138,9 @@ exports.buyerProductController = {
             });
         }
     },
-    /**
-     * GET /buyer/products/recommendations
-     * Mendapatkan rekomendasi produk untuk pembeli
-     */
     async getProductRecommendations(req, res) {
         try {
             const pagination = buyer_schema_1.paginationSchema.parse(req.query);
-            // Get user ID if available from authentication middleware
             const userId = req.user?.id;
             const products = await buyer_service_1.buyerProductService.getProductRecommendations(userId, pagination.limit);
             return res.status(200).json({
