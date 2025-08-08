@@ -4,9 +4,6 @@ exports.orderService = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 exports.orderService = {
-    /**
-     * Mengambil semua pesanan dari penjual
-     */
     async getSellerOrders(sellerId, page = 1, limit = 10) {
         const skip = (page - 1) * limit;
         const [orders, totalCount] = await Promise.all([
@@ -56,9 +53,6 @@ exports.orderService = {
             }
         };
     },
-    /**
-     * Mengambil detail satu pesanan
-     */
     async getOrderById(orderId, sellerId) {
         const order = await prisma.pesanan.findFirst({
             where: {
@@ -90,9 +84,6 @@ exports.orderService = {
         });
         return order;
     },
-    /**
-     * Filter pesanan berdasarkan status
-     */
     async getOrdersByStatus(sellerId, status, page = 1, limit = 10) {
         const skip = (page - 1) * limit;
         const [orders, totalCount] = await Promise.all([
@@ -145,9 +136,6 @@ exports.orderService = {
             }
         };
     },
-    /**
-     * Menerima pesanan
-     */
     async acceptOrder(orderId, sellerId) {
         // Cek status pesanan saat ini
         const order = await prisma.pesanan.findFirst({
@@ -160,7 +148,6 @@ exports.orderService = {
         if (!order) {
             return null;
         }
-        // Update status pesanan
         const updatedOrder = await prisma.pesanan.update({
             where: {
                 pesanan_id: orderId
@@ -178,7 +165,6 @@ exports.orderService = {
                 }
             }
         });
-        // Buat notifikasi untuk pembeli
         if (updatedOrder.user_id) {
             await prisma.notifikasi.create({
                 data: {
@@ -192,11 +178,7 @@ exports.orderService = {
         }
         return updatedOrder;
     },
-    /**
-     * Menolak pesanan
-     */
     async rejectOrder(orderId, sellerId, reason) {
-        // Cek status pesanan saat ini
         const order = await prisma.pesanan.findFirst({
             where: {
                 pesanan_id: orderId,
@@ -207,7 +189,6 @@ exports.orderService = {
         if (!order) {
             return null;
         }
-        // Update status pesanan
         const updatedOrder = await prisma.pesanan.update({
             where: {
                 pesanan_id: orderId
@@ -225,7 +206,6 @@ exports.orderService = {
                 }
             }
         });
-        // Buat notifikasi untuk pembeli
         if (updatedOrder.user_id) {
             await prisma.notifikasi.create({
                 data: {
@@ -239,9 +219,6 @@ exports.orderService = {
         }
         return updatedOrder;
     },
-    /**
-     * Update status pesanan menjadi sedang diproses
-     */
     async processOrder(orderId, sellerId) {
         // Cek status pesanan saat ini
         const order = await prisma.pesanan.findFirst({
@@ -254,7 +231,6 @@ exports.orderService = {
         if (!order) {
             return null;
         }
-        // Update status pesanan
         const updatedOrder = await prisma.pesanan.update({
             where: {
                 pesanan_id: orderId
@@ -272,7 +248,6 @@ exports.orderService = {
                 }
             }
         });
-        // Buat notifikasi untuk pembeli
         if (updatedOrder.user_id) {
             await prisma.notifikasi.create({
                 data: {
@@ -286,9 +261,6 @@ exports.orderService = {
         }
         return updatedOrder;
     },
-    /**
-     * Update status pesanan menjadi dikirim
-     */
     async deliverOrder(orderId, sellerId, note) {
         // Cek status pesanan saat ini
         const order = await prisma.pesanan.findFirst({
@@ -301,7 +273,6 @@ exports.orderService = {
         if (!order) {
             return null;
         }
-        // Update status pesanan
         const updatedOrder = await prisma.pesanan.update({
             where: {
                 pesanan_id: orderId
@@ -320,7 +291,6 @@ exports.orderService = {
                 }
             }
         });
-        // Buat notifikasi untuk pembeli
         if (updatedOrder.user_id) {
             await prisma.notifikasi.create({
                 data: {
@@ -334,9 +304,6 @@ exports.orderService = {
         }
         return updatedOrder;
     },
-    /**
-     * Mendapatkan ringkasan statistik pesanan dan pendapatan toko
-     */
     async getOrderSummary(sellerId) {
         // Hitung total pendapatan
         const revenue = await prisma.pesanan.aggregate({
@@ -350,7 +317,6 @@ exports.orderService = {
                 total_harga: true
             }
         });
-        // Hitung jumlah pesanan per status
         const ordersByStatus = await prisma.pesanan.groupBy({
             by: ['status_pesanan'],
             where: {
@@ -360,7 +326,6 @@ exports.orderService = {
                 pesanan_id: true
             }
         });
-        // Format ordersByStatus menjadi objek yang lebih mudah dibaca
         const orderCounts = {
             pending: 0,
             accepted: 0,
@@ -375,7 +340,6 @@ exports.orderService = {
                 orderCounts[item.status_pesanan] = item._count.pesanan_id;
             }
         });
-        // Ambil 5 pesanan terbaru
         const recentOrders = await prisma.pesanan.findMany({
             where: {
                 mitra_id: sellerId
@@ -392,22 +356,21 @@ exports.orderService = {
             },
             take: 5
         });
-        // Pendapatan per hari dalam seminggu terakhir
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         const dailyRevenue = await prisma.$queryRaw `
-      SELECT 
-        DATE(waktu_pesan) as date, 
+      SELECT
+        DATE(waktu_pesan) as date,
         SUM(total_harga) as revenue
-      FROM 
+      FROM
         pesanan
-      WHERE 
+      WHERE
         mitra_id = ${sellerId}
         AND waktu_pesan >= ${oneWeekAgo}
         AND status_pesanan IN ('completed', 'delivered')
-      GROUP BY 
+      GROUP BY
         DATE(waktu_pesan)
-      ORDER BY 
+      ORDER BY
         date ASC
     `;
         return {

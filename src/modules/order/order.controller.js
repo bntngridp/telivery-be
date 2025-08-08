@@ -4,9 +4,6 @@ exports.orderController = void 0;
 const order_service_1 = require("./order.service");
 const order_schema_1 = require("./order.schema");
 exports.orderController = {
-    /**
-     * Mengambil semua pesanan penjual
-     */
     async getSellerOrders(req, res) {
         try {
             const sellerId = req.user?.sellerId;
@@ -285,9 +282,6 @@ exports.orderController = {
             });
         }
     },
-    /**
-     * Mendapatkan ringkasan statistik pesanan dan pendapatan
-     */
     async getOrderSummary(req, res) {
         try {
             const sellerId = req.user?.sellerId;

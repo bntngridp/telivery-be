@@ -9,9 +9,6 @@ import {
 } from './order.schema';
 
 export const orderController = {
-  /**
-   * Mengambil semua pesanan penjual
-   */
   async getSellerOrders(req: Request, res: Response) {
     try {
       const sellerId = (req as any).user?.sellerId;
@@ -327,9 +324,7 @@ export const orderController = {
     }
   },
 
-  /**
-   * Mendapatkan ringkasan statistik pesanan dan pendapatan
-   */
+
   async getOrderSummary(req: Request, res: Response) {
     try {
       const sellerId = (req as any).user?.sellerId;

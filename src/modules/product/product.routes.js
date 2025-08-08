@@ -5,7 +5,6 @@ const product_controller_1 = require("./product.controller");
 const jwt_middleware_1 = require("../middlewares/jwt.middleware");
 const multer_seller_1 = require("../middlewares/multer.seller");
 const router = (0, express_1.Router)();
-// === SELLER ROUTES ===
 router.post('/seller/create', jwt_middleware_1.jwtMiddleware, multer_seller_1.uploadProductImage, product_controller_1.createProduct);
 router.get('/seller', jwt_middleware_1.jwtMiddleware, product_controller_1.getAllProducts);
 router.get('/seller/category/:category', jwt_middleware_1.jwtMiddleware, product_controller_1.getProductsByCategory);
@@ -14,7 +13,6 @@ router.put('/seller/:id', jwt_middleware_1.jwtMiddleware, multer_seller_1.upload
 router.patch('/seller/:id/stock', jwt_middleware_1.jwtMiddleware, product_controller_1.updateProductStock);
 router.delete('/seller/:id', jwt_middleware_1.jwtMiddleware, product_controller_1.deleteProduct);
 router.delete('/seller', jwt_middleware_1.jwtMiddleware, product_controller_1.deleteAllProducts);
-// === BUYER ROUTES ===
 router.get('/buyer', product_controller_1.getAllProductsForBuyer);
 router.get('/buyer/popular', product_controller_1.getPopularProducts);
 router.get('/buyer/recommendations', product_controller_1.getProductRecommendations);

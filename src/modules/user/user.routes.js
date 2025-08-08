@@ -36,7 +36,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const userController = __importStar(require("./user.controller"));
 const router = (0, express_1.Router)();
-// Test API: Random quote
 router.get('/random-quote', userController.getRandomQuote);
 router.get('/', userController.getUsers);
 router.get('/:id', userController.getUser);

@@ -379,18 +379,18 @@ export const orderService = {
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     const dailyRevenue = await prisma.$queryRaw`
-      SELECT 
-        DATE(waktu_pesan) as date, 
+      SELECT
+        DATE(waktu_pesan) as date,
         SUM(total_harga) as revenue
-      FROM 
+      FROM
         pesanan
-      WHERE 
+      WHERE
         mitra_id = ${sellerId}
         AND waktu_pesan >= ${oneWeekAgo}
         AND status_pesanan IN ('completed', 'delivered')
-      GROUP BY 
+      GROUP BY
         DATE(waktu_pesan)
-      ORDER BY 
+      ORDER BY
         date ASC
     `;
 

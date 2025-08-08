@@ -1,16 +1,37 @@
-import { Router } from 'express';
-import { orderController } from './order.controller';
-import { jwtMiddleware } from '../middlewares/jwt.middleware';
+import { z } from 'zod';
 
-const router = Router();
+// Schema untuk validasi ID pesanan
+export const orderIdSchema = z.object({
+  id: z.string().or(z.number()).transform(val => String(val))
+});
 
-router.use(jwtMiddleware);
-router.get('/', orderController.getSellerOrders);
-router.get('/summary', orderController.getOrderSummary);
-router.get('/status/:status', orderController.getOrdersByStatus);
-router.get('/:id', orderController.getOrderById);
-router.patch('/:id/accept', orderController.acceptOrder);
-router.patch('/:id/reject', orderController.rejectOrder);
-router.patch('/:id/processing', orderController.processOrder);
-router.patch('/:id/deliver', orderController.deliverOrder);
-export default router;
+// Schema untuk validasi status pesanan
+export const orderStatusSchema = z.object({
+  status: z.enum([
+    'PENDING',
+    'ACCEPTED',
+    'REJECTED',
+    'PROCESSING',
+    'DELIVERING',
+    'DELIVERED',
+    'COMPLETED',
+    'CANCELLED'
+  ])
+});
+
+// Schema untuk validasi pagination pada daftar pesanan
+export const orderPaginationSchema = z.object({
+  page: z.string().or(z.number()).transform(val => Number(val)).default('1'),
+  limit: z.string().or(z.number()).transform(val => Number(val)).default('10')
+});
+
+// Schema untuk validasi penolakan pesanan
+export const rejectOrderSchema = z.object({
+  reason: z.string().min(1, 'Alasan penolakan harus diisi')
+});
+
+// Schema untuk validasi catatan pengiriman
+export const deliveryNoteSchema = z.object({
+  note: z.string().optional()
+});
+
