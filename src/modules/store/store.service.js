@@ -224,9 +224,6 @@ exports.storeService = {
             }
         };
     },
-    /**
-     * Mendapatkan toko populer berdasarkan jumlah pesanan
-     */
     async getPopularStores(limit = 10) {
         // Get stores with most orders
         const stores = await prisma.penjual.findMany({
@@ -270,9 +267,6 @@ exports.storeService = {
         }));
         return formattedStores;
     },
-    /**
-     * Mendapatkan rekomendasi toko untuk pembeli
-     */
     async getStoreRecommendations(userId, limit = 10) {
         // Definisikan tipe untuk recommendedStores
         let recommendedStores = [];

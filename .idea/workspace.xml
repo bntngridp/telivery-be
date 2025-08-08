@@ -5,21 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e97c5575-0ae6-45d9-868b-91c312467d26" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/copilotDiffState.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilotDiffState.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modules/order/buyer.order.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modules/order/buyer.order.routes.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modules/order/buyer.order.schema.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modules/order/buyer.order.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilotDiffState.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/auth.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/auth/auth.routes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/jwt.middleware.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/middlewares/jwt.middleware.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/jwt.middleware.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/middlewares/jwt.middleware.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/multer.seller.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/middlewares/multer.seller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/auth/multer.seller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/middlewares/multer.seller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/product/product.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/product/product.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/product/product.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/product/product.routes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/product/product.schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/product/product.schema.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/product/product.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/product/product.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/order/order.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/order/order.controller.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/order/order.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/order/order.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/order/order.routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/order/order.routes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/order/order.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/order/order.routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/order/order.schema.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/order/order.schema.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/order/order.schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/order/order.schema.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/order/order.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/order/order.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/order/order.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/store/store.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/store/store.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/store/store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/store/store.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,6 +98,7 @@
       <workItem from="1754576276418" duration="890000" />
       <workItem from="1754577312840" duration="2895000" />
       <workItem from="1754584812278" duration="96000" />
+      <workItem from="1754653714726" duration="3377000" />
     </task>
     <servers />
   </component>
@@ -140,6 +144,10 @@
         <option value="$PROJECT_DIR$/src/modules/partner/partner.service.js" />
         <option value="$PROJECT_DIR$/src/modules/partner/partner.controller.js" />
         <option value="$PROJECT_DIR$/src/modules/order/order.schema.js" />
+        <option value="$PROJECT_DIR$/src/modules/order/buyer.order.routes.js" />
+        <option value="$PROJECT_DIR$/src/modules/order/buyer.order.service.js" />
+        <option value="$PROJECT_DIR$/src/modules/order/buyer.order.controller.js" />
+        <option value="$PROJECT_DIR$/src/modules/order/buyer.order.schema.js" />
       </list>
     </option>
   </component>

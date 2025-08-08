@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const buyer_order_controller_1 = require("./buyer.order.controller");
+const jwt_middleware_1 = require("../middlewares/jwt.middleware");
+const router = (0, express_1.Router)();
+router.use(jwt_middleware_1.jwtMiddleware);
+router.post('/', buyer_order_controller_1.buyerOrderController.createOrder);
+router.get('/summary', buyer_order_controller_1.buyerOrderController.getOrderSummary);
+router.get('/status/:status', buyer_order_controller_1.buyerOrderController.getOrdersByStatus);
+router.get('/track/:id', buyer_order_controller_1.buyerOrderController.trackOrder);
+router.get('/', buyer_order_controller_1.buyerOrderController.getBuyerOrders);
+router.get('/:id', buyer_order_controller_1.buyerOrderController.getOrderById);
+router.patch('/:id/cancel', buyer_order_controller_1.buyerOrderController.cancelOrder);
+router.patch('/:id/confirm', buyer_order_controller_1.buyerOrderController.confirmOrder);
+router.post('/:id/review', buyer_order_controller_1.buyerOrderController.reviewOrder);
+exports.default = router;

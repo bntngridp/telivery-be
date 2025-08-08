@@ -237,7 +237,7 @@ export const storeService = {
       }
     };
   },
-  
+
   async getPopularStores(limit: number = 10) {
     // Get stores with most orders
     const stores = await prisma.penjual.findMany({

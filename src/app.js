@@ -9,6 +9,7 @@ const user_routes_1 = __importDefault(require("./modules/user/user.routes"));
 const auth_routes_1 = __importDefault(require("./modules/auth/auth.routes"));
 const product_routes_1 = __importDefault(require("./modules/product/product.routes"));
 const store_routes_1 = __importDefault(require("./modules/store/store.routes"));
+const order_routes_1 = __importDefault(require("./modules/order/order.routes"));
 const app = (0, express_1.default)();
 // Middleware setup
 app.use(express_1.default.json());
@@ -17,6 +18,7 @@ app.use('/api/users', user_routes_1.default);
 app.use('/api/auth', auth_routes_1.default);
 app.use('/api/product', product_routes_1.default);
 app.use('/api/buyer/stores', store_routes_1.default);
+app.use('/api/seller/orders', order_routes_1.default);
 // Define routes
 app.get('/', (req, res) => {
     res.send('Welcome to the Cheva Telivery API!');
