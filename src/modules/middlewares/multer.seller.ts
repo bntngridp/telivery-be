@@ -25,22 +25,18 @@ const diskStorage = multer.diskStorage({
   },
 });
 
-// Configure memory storage for buffer access
 const memoryStorage = multer.memoryStorage();
 
-// Create multer instances
 export const uploadSellerDocs = multer({
   storage: diskStorage,
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
-// Separate multer instance for product images with memory storage
 export const uploadProductImage = multer({
   storage: memoryStorage, // Use memory storage to allow buffer access
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 }).single("gambar");
 
-// Debug middleware to log file information
 export const logFileInfo = (req: Request, res: Response, next: NextFunction) => {
   console.log("File request:", {
     body: req.body,

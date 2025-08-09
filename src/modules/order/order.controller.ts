@@ -42,9 +42,6 @@ export const orderController = {
     }
   },
 
-  /**
-   * Mengambil detail satu pesanan
-   */
   async getOrderById(req: Request, res: Response) {
     try {
       const sellerId = (req as any).user?.sellerId;
@@ -88,9 +85,6 @@ export const orderController = {
     }
   },
 
-  /**
-   * Mengambil pesanan berdasarkan status
-   */
   async getOrdersByStatus(req: Request, res: Response) {
     try {
       const sellerId = (req as any).user?.sellerId;
@@ -136,9 +130,6 @@ export const orderController = {
     }
   },
 
-  /**
-   * Menerima pesanan
-   */
   async acceptOrder(req: Request, res: Response) {
     try {
       const sellerId = (req as any).user?.sellerId;
@@ -182,9 +173,6 @@ export const orderController = {
     }
   },
 
-  /**
-   * Menolak pesanan
-   */
   async rejectOrder(req: Request, res: Response) {
     try {
       const sellerId = (req as any).user?.sellerId;
@@ -230,9 +218,6 @@ export const orderController = {
     }
   },
 
-  /**
-   * Memproses pesanan
-   */
   async processOrder(req: Request, res: Response) {
     try {
       const sellerId = (req as any).user?.sellerId;
@@ -276,9 +261,6 @@ export const orderController = {
     }
   },
 
-  /**
-   * Mengirim pesanan
-   */
   async deliverOrder(req: Request, res: Response) {
     try {
       const sellerId = (req as any).user?.sellerId;

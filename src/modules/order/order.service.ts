@@ -144,7 +144,6 @@ export const orderService = {
   },
 
   async acceptOrder(orderId: number, sellerId: number) {
-    // Cek status pesanan saat ini
     const order = await prisma.pesanan.findFirst({
       where: {
         pesanan_id: orderId,
@@ -278,7 +277,6 @@ export const orderService = {
     return updatedOrder;
   },
   async deliverOrder(orderId: number, sellerId: number, note?: string) {
-    // Cek status pesanan saat ini
     const order = await prisma.pesanan.findFirst({
       where: {
         pesanan_id: orderId,
@@ -323,7 +321,6 @@ export const orderService = {
     return updatedOrder;
   },
   async getOrderSummary(sellerId: number) {
-    // Hitung total pendapatan
     const revenue = await prisma.pesanan.aggregate({
       where: {
         mitra_id: sellerId,

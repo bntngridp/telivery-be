@@ -114,7 +114,6 @@ export const buyerOrderService = {
         }
       }
 
-      // Buat entri pembayaran
       await prisma.pembayaran.create({
         data: {
           pesanan_id: newOrder.pesanan_id,

@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import * as userService from './user.service';
 
-// Test API: Get a random quote
 export const getRandomQuote = (req: Request, res: Response) => {
   const quotes = [
     "The best way to get started is to quit talking and begin doing.",
