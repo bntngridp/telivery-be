@@ -24,3 +24,4 @@ app.get('/', (req, res) => {
 
 // Export the app for use in server.ts
 export default app;
+// Start the server in server.ts
