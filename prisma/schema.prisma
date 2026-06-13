@@ -106,6 +106,7 @@ model pembeli {
   phone_number     String?      @db.VarChar(20)
   full_name        String?      @db.VarChar(100)
   birth_date       DateTime?
+  last_login_at    DateTime?
   notifications    notifikasi[] @relation("PembeliNotifikasi")
   orders           pesanan[]    @relation("PembeliPesanan")
 }
@@ -128,6 +129,7 @@ model penjual {
   status_toko       String?        @db.VarChar(50)
   role_penjual      String?        @db.VarChar(50)
   waktu_dibuat      DateTime?      @db.DateTime(0)
+  last_login_at    DateTime?      @db.DateTime(0)
   dompet_mitra      dompet_mitra[]
   layanan           layanan[]
   notifikasi        notifikasi[]

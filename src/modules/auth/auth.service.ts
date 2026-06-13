@@ -85,6 +85,11 @@ export const authService = {
 
         const token = signToken({ id: buyer.user_id, role: 'pembeli' }, env.JWT_EXPIRES_IN as SignOptions['expiresIn']);
         await prisma.otp_verify.delete({ where: { id: otpRecord.id } });
+
+        prisma.pembeli
+            .update({ where: { user_id: buyer.user_id }, data: { last_login_at: new Date() } })
+            .catch(() => {});
+
         return { token };
     },
 
@@ -144,6 +149,11 @@ export const authService = {
             { sellerId: seller.mitra_id, role: 'penjual' },
             env.SELLER_JWT_EXPIRES_IN as SignOptions['expiresIn'],
         );
+
+        prisma.penjual
+            .update({ where: { mitra_id: seller.mitra_id }, data: { last_login_at: new Date() } })
+            .catch(() => {});
+
         return { token };
     },
 

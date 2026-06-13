@@ -2,6 +2,7 @@ import './config/env';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import rateLimit from 'express-rate-limit';
 import authRoutes from './modules/auth/auth.routes';
 import productRoutes from './modules/product/product.routes';
 import buyerStoreRoutes from './modules/store/store.routes';
@@ -20,12 +21,25 @@ import {
     sellerRouter as notifSellerRouter,
 } from './modules/notification/notification.routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
+import { prisma } from './config/prisma';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+const globalWriteLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: 'Terlalu banyak request. Coba lagi dalam 15 menit.',
+        error: 'TOO_MANY_REQUESTS',
+    },
+});
 
 const documentsDir = path.join(__dirname, '..', 'documents');
 app.use(
@@ -41,9 +55,29 @@ app.get('/', (_req, res) => {
     res.send('Welcome to the Cheva Telivery API!');
 });
 
-app.get('/health', (_req, res) => {
-    res.json({ success: true, message: 'OK', timestamp: new Date().toISOString() });
+app.get('/health', async (_req, res) => {
+    let dbStatus: 'connected' | 'disconnected' = 'disconnected';
+    let dbError: string | undefined;
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        dbStatus = 'connected';
+    } catch (e) {
+        dbError = e instanceof Error ? e.message : 'Unknown DB error';
+    }
+
+    const statusCode = dbStatus === 'connected' ? 200 : 503;
+    res.status(statusCode).json({
+        success: dbStatus === 'connected',
+        status: statusCode === 200 ? 'healthy' : 'degraded',
+        timestamp: new Date().toISOString(),
+        database: dbStatus,
+        uptime: process.uptime(),
+        memory: process.memoryUsage().rss,
+        ...(dbError ? { databaseError: dbError } : {}),
+    });
 });
+
+app.use(globalWriteLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/product', productRoutes);
