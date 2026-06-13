@@ -1,4 +1,18 @@
 {
+  "name": "telivery-be",
+  "version": "1.0.0",
+  "description": "Cheva-Telivery backend API for campus delivery marketplace",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "start:dev": "ts-node src/server.ts",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
+  },
   "dependencies": {
     "@prisma/client": "^6.13.0",
     "bcryptjs": "^3.0.2",
@@ -13,11 +27,11 @@
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
+    "eslint": "^10.5.0",
+    "prettier": "^3.8.4",
     "prisma": "^6.13.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.22.4",
     "typescript": "^5.8.3"
-  },
-  "scripts": {
-    "start": "ts-node src/server.ts"
   }
 }

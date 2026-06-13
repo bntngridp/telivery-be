@@ -6,14 +6,13 @@ export const orderIdSchema = z.object({
 
 export const orderStatusSchema = z.object({
   status: z.enum([
-    'PENDING',
-    'ACCEPTED',
-    'REJECTED',
-    'PROCESSING',
-    'DELIVERING',
-    'DELIVERED',
-    'COMPLETED',
-    'CANCELLED'
+    'pending',
+    'accepted',
+    'rejected',
+    'processing',
+    'delivered',
+    'completed',
+    'canceled'
   ])
 });
 
