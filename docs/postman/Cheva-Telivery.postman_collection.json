@@ -1,0 +1,1060 @@
+{
+  "info": {
+    "name": "Cheva-Telivery API",
+    "description": "Backend API untuk marketplace delivery kampus.\n\nBase URL: `http://localhost:3000`\n\n**Auth Flow:**\n1. Register atau request OTP\n2. Verify OTP → dapat JWT token\n3. Gunakan token di header `Authorization: Bearer <token>`\n\n**Roles:**\n- `pembeli` (buyer) — token dari `/api/auth/buyer/verify-otp`\n- `penjual` (seller) — token dari `/api/auth/seller/login`\n- `admin` — token dari `/api/auth/admin/login`\n\n**Dokumentasi lengkap:** lihat `issues/008-notification.md`, `011-cart-checkout.md`, dll di repo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{buyerToken}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "buyerToken", "value": "", "type": "string" },
+    { "key": "sellerToken", "value": "", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "buyerId", "value": "", "type": "string" },
+    { "key": "sellerId", "value": "", "type": "string" },
+    { "key": "produkId", "value": "", "type": "string" },
+    { "key": "layananId", "value": "", "type": "string" },
+    { "key": "pesananId", "value": "", "type": "string" },
+    { "key": "pembayaranId", "value": "", "type": "string" },
+    { "key": "storeId", "value": "", "type": "string" },
+    { "key": "notificationId", "value": "", "type": "string" },
+    { "key": "cartItemId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "01. System",
+      "item": [
+        {
+          "name": "Welcome",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] }
+          }
+        },
+        {
+          "name": "Health Check (DB ping)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Auth — Buyer",
+      "item": [
+        {
+          "name": "Register Buyer (creates user + sends OTP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": [""], "type": "text/javascript" }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Budi Test\",\n  \"phoneNumber\": \"081111111111\",\n  \"birthDate\": \"2000-05-15\",\n  \"domicile\": \"Jakarta\",\n  \"faculty\": \"FTI\",\n  \"major\": \"Teknik Informatika\",\n  \"address\": \"Jl. Test No. 1, Jakarta\",\n  \"email\": \"budi.test@example.com\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/buyer/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "buyer", "register"] }
+          }
+        },
+        {
+          "name": "Request OTP Login (rate limited 5/15min)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"081111111111\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/buyer/request-otp", "host": ["{{baseUrl}}"], "path": ["api", "auth", "buyer", "request-otp"] }
+          }
+        },
+        {
+          "name": "Verify OTP Login (returns JWT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data.token) {\n    pm.collectionVariables.set('buyerToken', json.data.token);\n    const decoded = json.data.token.split('.')[1];\n    const payload = JSON.parse(atob(decoded));\n    pm.collectionVariables.set('buyerId', payload.id);\n    console.log('buyerToken saved, id:', payload.id);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"081111111111\",\n  \"otp\": \"12345\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/buyer/verify-otp", "host": ["{{baseUrl}}"], "path": ["api", "auth", "buyer", "verify-otp"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Auth — Seller",
+      "item": [
+        {
+          "name": "Request Seller OTP (rate limited)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"082222222222\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/seller/request-otp", "host": ["{{baseUrl}}"], "path": ["api", "auth", "seller", "request-otp"] }
+          }
+        },
+        {
+          "name": "Verify OTP + Register Seller (returns JWT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data.token) {\n    pm.collectionVariables.set('sellerToken', json.data.token);\n    const decoded = json.data.token.split('.')[1];\n    const payload = JSON.parse(atob(decoded));\n    pm.collectionVariables.set('sellerId', payload.sellerId);\n    console.log('sellerToken saved, id:', payload.sellerId);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"082222222222\",\n  \"otp\": \"12345\",\n  \"email\": \"siti.test@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/seller/verify-otp", "host": ["{{baseUrl}}"], "path": ["api", "auth", "seller", "verify-otp"] }
+          }
+        },
+        {
+          "name": "Register Store (multipart, requires JWT)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "businessType", "value": "makanan", "type": "text" },
+                { "key": "storeName", "value": "Toko Test", "type": "text" },
+                { "key": "storeAddress", "value": "Jl. Toko No. 1, Jakarta", "type": "text" },
+                { "key": "ownerKtpPhoto", "src": "/path/to/ktp.jpg", "type": "file" },
+                { "key": "ownerFacePhoto", "src": "/path/to/face.jpg", "type": "file" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/seller/register-store", "host": ["{{baseUrl}}"], "path": ["api", "auth", "seller", "register-store"] }
+          }
+        },
+        {
+          "name": "Seller Login (email + password)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data.token) {\n    pm.collectionVariables.set('sellerToken', json.data.token);\n    const decoded = json.data.token.split('.')[1];\n    const payload = JSON.parse(atob(decoded));\n    pm.collectionVariables.set('sellerId', payload.sellerId);\n    console.log('sellerToken refreshed, id:', payload.sellerId);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"siti.test@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/seller/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "seller", "login"] }
+          }
+        },
+        {
+          "name": "Forgot Password (rate limited)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"siti.test@example.com\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/seller/forgot-password", "host": ["{{baseUrl}}"], "path": ["api", "auth", "seller", "forgot-password"] }
+          }
+        },
+        {
+          "name": "Verify Reset OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"siti.test@example.com\",\n  \"otp\": \"12345\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/seller/verify-reset-otp", "host": ["{{baseUrl}}"], "path": ["api", "auth", "seller", "verify-reset-otp"] }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"siti.test@example.com\",\n  \"otp\": \"12345\",\n  \"newPassword\": \"newPassword456\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/seller/reset-password", "host": ["{{baseUrl}}"], "path": ["api", "auth", "seller", "reset-password"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Auth — Admin",
+      "item": [
+        {
+          "name": "Admin Login (env-based credentials)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data.token) {\n    pm.collectionVariables.set('adminToken', json.data.token);\n    console.log('adminToken saved');\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bntngrid@gmail.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/admin/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "admin", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Admin",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "List Pending Stores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/stores/pending?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "stores", "pending"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Store",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/admin/stores/1/approve", "host": ["{{baseUrl}}"], "path": ["api", "admin", "stores", "1", "approve"] }
+          }
+        },
+        {
+          "name": "Reject Store",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alasan\": \"Dokumen KTP tidak jelas, mohon upload ulang\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/admin/stores/2/reject", "host": ["{{baseUrl}}"], "path": ["api", "admin", "stores", "2", "reject"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Buyer Profile",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{buyerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/profile", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "profile"] }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Budi Updated\",\n  \"deliveryAddress\": \"Jl. Baru No. 99\",\n  \"faculty\": \"FTE\",\n  \"major\": \"Teknik Elektro\",\n  \"phoneNumber\": \"081999999999\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/buyer/profile", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "profile"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Product — Seller",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{sellerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "Create Product (multipart)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data.produk_id) {\n    pm.collectionVariables.set('produkId', json.data.produk_id);\n    console.log('produkId saved:', json.data.produk_id);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "nama", "value": "Nasi Goreng", "type": "text" },
+                { "key": "harga", "value": "15000", "type": "text" },
+                { "key": "stok", "value": "100", "type": "text" },
+                { "key": "kategori", "value": "MAKANAN_MINUMAN", "type": "text" },
+                { "key": "gambar", "src": "/path/to/product.jpg", "type": "file" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/product/seller/create", "host": ["{{baseUrl}}"], "path": ["api", "product", "seller", "create"] }
+          }
+        },
+        {
+          "name": "List My Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/product/seller", "host": ["{{baseUrl}}"], "path": ["api", "product", "seller"] }
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/product/seller/:id", "host": ["{{baseUrl}}"], "path": ["api", "product", "seller", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Get Products by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/product/seller/category/makanan-minuman", "host": ["{{baseUrl}}"], "path": ["api", "product", "seller", "category", "makanan-minuman"] }
+          }
+        },
+        {
+          "name": "Update Product (multipart, optional image)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "nama", "value": "Nasi Goreng Spesial", "type": "text" },
+                { "key": "harga", "value": "18000", "type": "text" },
+                { "key": "gambar", "src": "/path/to/new-product.jpg", "type": "file" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/product/seller/:id", "host": ["{{baseUrl}}"], "path": ["api", "product", "seller", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Update Stock Only",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stok\": 75\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/product/seller/:id/stock", "host": ["{{baseUrl}}"], "path": ["api", "product", "seller", ":id", "stock"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/product/seller/:id", "host": ["{{baseUrl}}"], "path": ["api", "product", "seller", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Delete All My Products",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/product/seller", "host": ["{{baseUrl}}"], "path": ["api", "product", "seller"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08. Product — Buyer (public)",
+      "item": [
+        {
+          "name": "List All Available Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/products?page=1&limit=10", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "products"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }] }
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/products/:id", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "products", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/products/search?q=nasi", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "products", "search"], "query": [{ "key": "q", "value": "nasi" }] }
+          }
+        },
+        {
+          "name": "Get Popular Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/products/popular", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "products", "popular"] }
+          }
+        },
+        {
+          "name": "Get Product Recommendations (optional JWT)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{buyerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/buyer/products/recommendations", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "products", "recommendations"] }
+          }
+        },
+        {
+          "name": "Get Products by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/products/category/makanan-minuman", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "products", "category", "makanan-minuman"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09. Store — Buyer (public)",
+      "item": [
+        {
+          "name": "List All Open Approved Stores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/stores?page=1&limit=10", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "stores"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }] }
+          }
+        },
+        {
+          "name": "Get Store by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/stores/:id", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "stores", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Search Stores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/stores/search?q=toko", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "stores", "search"], "query": [{ "key": "q", "value": "toko" }] }
+          }
+        },
+        {
+          "name": "Get Stores by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/stores/category/makanan-minuman", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "stores", "category", "makanan-minuman"] }
+          }
+        },
+        {
+          "name": "Get Popular Stores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/stores/popular", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "stores", "popular"] }
+          }
+        },
+        {
+          "name": "Get Store Recommendations (optional JWT)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{buyerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/buyer/stores/recommendations", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "stores", "recommendations"] }
+          }
+        },
+        {
+          "name": "Get Store's Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/stores/:id/products", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "stores", ":id", "products"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Partner (Seller Profile)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{sellerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/profile", "host": ["{{baseUrl}}"], "path": ["api", "seller", "profile"] }
+          }
+        },
+        {
+          "name": "Update Profile (e.g. open/close store)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"namaToko\": \"Toko Updated\",\n  \"deskripsiToko\": \"Restoran terlengkap\",\n  \"jamOprasional\": \"08:00 - 22:00\",\n  \"statusToko\": \"OPEN\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/seller/profile", "host": ["{{baseUrl}}"], "path": ["api", "seller", "profile"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Order — Buyer",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{buyerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "Create Order (direct, tanpa cart)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data[0] && json.data[0].pesanan_id) {\n    pm.collectionVariables.set('pesananId', json.data[0].pesanan_id);\n    console.log('pesananId saved:', json.data[0].pesanan_id);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_produk\": [\n    { \"produk_id\": 1, \"jumlah\": 2 },\n    { \"produk_id\": 2, \"jumlah\": 1 }\n  ],\n  \"id_layanan\": [],\n  \"alamat_pengiriman\": \"Gedung A Lt 3, Jakarta\",\n  \"metode_pembayaran\": \"transfer\",\n  \"catatan\": \"Tolong cepat\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders"] }
+          }
+        },
+        {
+          "name": "Get All My Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders?page=1&limit=10", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }] }
+          }
+        },
+        {
+          "name": "Get Order Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders/summary", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders", "summary"] }
+          }
+        },
+        {
+          "name": "Get Orders by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders/status/pending", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders", "status", "pending"] }
+          }
+        },
+        {
+          "name": "Get Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders/:id", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Track Order Timeline",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders/:id/track", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders", ":id", "track"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Cancel Order (only pending)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Berubah pikiran, belum jadi pesan\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders/:id/cancel", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders", ":id", "cancel"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Confirm Order Received (delivered → completed)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders/:id/confirm", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders", ":id", "confirm"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Review Order (only completed)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"komentar\": \"Mantap, cepat sampai!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders/:id/review", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders", ":id", "review"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Order — Seller",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{sellerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "Get All My Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/orders?page=1&limit=10", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }] }
+          }
+        },
+        {
+          "name": "Get Order Summary Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/orders/summary", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders", "summary"] }
+          }
+        },
+        {
+          "name": "Get Orders by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/orders/status/pending", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders", "status", "pending"] }
+          }
+        },
+        {
+          "name": "Get Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/orders/:id", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Accept Order (pending → accepted)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/orders/:id/accept", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders", ":id", "accept"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Reject Order (pending → rejected, with reason)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Stok habis untuk item ini\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/seller/orders/:id/reject", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders", ":id", "reject"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Process Order (accepted → processing)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/orders/:id/processing", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders", ":id", "processing"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Mark Delivered (processing → delivered)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Sudah diantar via GoSend\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/seller/orders/:id/deliver", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders", ":id", "deliver"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Service (Layanan) — Seller",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{sellerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "Create Layanan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data.layanan_id) {\n    pm.collectionVariables.set('layananId', json.data.layanan_id);\n    console.log('layananId saved:', json.data.layanan_id);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"namaLayanan\": \"Laundry Kiloan\",\n  \"harga\": 12000,\n  \"jenisLayanan\": \"laundry\",\n  \"estimasiDurasi\": 2,\n  \"catatan\": \"Minimal 2 hari kerja\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/service/seller", "host": ["{{baseUrl}}"], "path": ["api", "service", "seller"] }
+          }
+        },
+        {
+          "name": "List My Layanan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/service/seller", "host": ["{{baseUrl}}"], "path": ["api", "service", "seller"] }
+          }
+        },
+        {
+          "name": "Get Layanan by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/service/seller/:id", "host": ["{{baseUrl}}"], "path": ["api", "service", "seller", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Update Layanan (PUT/PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"harga\": 15000\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/service/seller/:id", "host": ["{{baseUrl}}"], "path": ["api", "service", "seller", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Delete Layanan (only if never ordered)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/service/seller/:id", "host": ["{{baseUrl}}"], "path": ["api", "service", "seller", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "14. Service (Layanan) — Buyer (public)",
+      "item": [
+        {
+          "name": "List Layanan by Store",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/service/buyer/store/:storeId", "host": ["{{baseUrl}}"], "path": ["api", "service", "buyer", "store", ":storeId"], "variable": [{ "key": "storeId", "value": "1" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "15. Cart",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{buyerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "Add Produk to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data.cart_id) {\n    pm.collectionVariables.set('cartItemId', json.data.cart_id);\n    console.log('cartItemId saved:', json.data.cart_id);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produkId\": 1,\n  \"jumlah\": 2\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart/items", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart", "items"] }
+          }
+        },
+        {
+          "name": "Add Layanan to Cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"layananId\": 1,\n  \"jumlah\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart/items", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart", "items"] }
+          }
+        },
+        {
+          "name": "List My Cart (with totals + grouped by store)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart"] }
+          }
+        },
+        {
+          "name": "Update Cart Item Quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jumlah\": 5\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart/items/:id", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart", "items", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart/items/:id", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart", "items", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Clear All Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "16. Checkout",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{buyerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "Checkout (cart → orders, clears cart)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alamat_pengiriman\": \"Gedung A Lt 3, Jakarta\",\n  \"metode_pembayaran\": \"transfer\",\n  \"catatan\": \"Tolong packing rapi\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/buyer/checkout", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "checkout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "17. Payment",
+      "item": [
+        {
+          "name": "Upload Payment Receipt (buyer, multipart)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{buyerToken}}", "type": "string" }] },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "receipt", "src": "/path/to/receipt.jpg", "type": "file" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/payments/buyer/pesanan/:pesananId/receipt", "host": ["{{baseUrl}}"], "path": ["api", "payments", "buyer", "pesanan", ":pesananId", "receipt"], "variable": [{ "key": "pesananId", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Confirm Payment (seller)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{sellerToken}}", "type": "string" }] },
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/payments/seller/pembayaran/:pembayaranId/confirm", "host": ["{{baseUrl}}"], "path": ["api", "payments", "seller", "pembayaran", ":pembayaranId", "confirm"], "variable": [{ "key": "pembayaranId", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Reject Payment (seller, with reason)",
+          "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{sellerToken}}", "type": "string" }] },
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"catatan\": \"Bukti transfer tidak terbaca, mohon upload ulang\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/payments/seller/pembayaran/:pembayaranId/reject", "host": ["{{baseUrl}}"], "path": ["api", "payments", "seller", "pembayaran", ":pembayaranId", "reject"], "variable": [{ "key": "pembayaranId", "value": "1" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "18. Notification — Buyer",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{buyerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "List My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/notifications?page=1&limit=10&tipe=order_accepted", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "notifications"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }, { "key": "tipe", "value": "order_accepted" }] }
+          }
+        },
+        {
+          "name": "Get Unread Count (badge counter)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/notifications/unread-count", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "notifications", "unread-count"] }
+          }
+        },
+        {
+          "name": "Mark Single Notification as Read",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data.notifikasi_id) {\n    pm.collectionVariables.set('notificationId', json.data.notifikasi_id);\n    console.log('notificationId saved:', json.data.notifikasi_id);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/notifications/:id/read", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "notifications", ":id", "read"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/notifications/read-all", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "notifications", "read-all"] }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/buyer/notifications/:id", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "notifications", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "19. Notification — Seller",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{sellerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "List My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/notifications?page=1&limit=10&tipe=new_order", "host": ["{{baseUrl}}"], "path": ["api", "seller", "notifications"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }, { "key": "tipe", "value": "new_order" }] }
+          }
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/notifications/unread-count", "host": ["{{baseUrl}}"], "path": ["api", "seller", "notifications", "unread-count"] }
+          }
+        },
+        {
+          "name": "Mark Single as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/notifications/:id/read", "host": ["{{baseUrl}}"], "path": ["api", "seller", "notifications", ":id", "read"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/notifications/read-all", "host": ["{{baseUrl}}"], "path": ["api", "seller", "notifications", "read-all"] }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/seller/notifications/:id", "host": ["{{baseUrl}}"], "path": ["api", "seller", "notifications", ":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    }
+  ]
+}
