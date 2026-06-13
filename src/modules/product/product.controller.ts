@@ -108,38 +108,3 @@ export const deleteAllProducts = asyncHandler(async (req: Request, res: Response
     const result = await productService.deleteAll(sellerId);
     return success(res, result.message);
 });
-
-export const getAllProductsForBuyer = asyncHandler(async (_req: Request, res: Response) => {
-    const data = await productService.listForBuyer();
-    return success(res, 'Produk berhasil diambil', data);
-});
-
-export const getProductByIdForBuyer = asyncHandler(async (req: Request, res: Response) => {
-    const id = parseId(req.params.id);
-    const product = await productService.findByIdForBuyer(id);
-    if (!product) throw new NotFoundError('Produk tidak ditemukan');
-    return success(res, 'Detail produk berhasil diambil', product);
-});
-
-export const getProductsByCategoryForBuyer = asyncHandler(async (req: Request, res: Response) => {
-    const data = await productService.listForBuyerByCategory(resolveCategoryDb(req.params.kategori));
-    return success(res, 'Produk berhasil diambil', data);
-});
-
-export const searchProducts = asyncHandler(async (req: Request, res: Response) => {
-    const keyword = String(req.query.q ?? '').trim();
-    if (!keyword) throw new BadRequestError('Parameter pencarian tidak boleh kosong');
-    const data = await productService.searchForBuyer(keyword);
-    return success(res, 'Hasil pencarian produk', data);
-});
-
-export const getPopularProducts = asyncHandler(async (_req: Request, res: Response) => {
-    const data = await productService.listPopular(10);
-    return success(res, 'Produk populer berhasil diambil', data);
-});
-
-export const getProductRecommendations = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user?.role === 'pembeli' ? req.user.id : undefined;
-    const data = await productService.listRecommendations(userId, 10);
-    return success(res, 'Rekomendasi produk berhasil diambil', data);
-});

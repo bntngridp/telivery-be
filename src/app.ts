@@ -2,13 +2,13 @@ import './config/env';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import userRoutes from './modules/user/user.routes';
 import authRoutes from './modules/auth/auth.routes';
 import productRoutes from './modules/product/product.routes';
 import buyerStoreRoutes from './modules/store/store.routes';
 import orderSellerRoutes from './modules/order/order.routes';
 import buyerOrderRoutes from './modules/order/buyer.order.routes';
 import buyerProductRoutes from './modules/product/buyer.routes';
+import buyerProfileRoutes from './modules/buyer/buyer.routes';
 import paymentRoutes from './modules/payment/payment.routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
@@ -36,12 +36,12 @@ app.get('/health', (_req, res) => {
     res.json({ success: true, message: 'OK', timestamp: new Date().toISOString() });
 });
 
-app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/product', productRoutes);
 app.use('/api/buyer/products', buyerProductRoutes);
 app.use('/api/buyer/stores', buyerStoreRoutes);
 app.use('/api/buyer/orders', buyerOrderRoutes);
+app.use('/api/buyer', buyerProfileRoutes);
 app.use('/api/seller/orders', orderSellerRoutes);
 app.use('/api/payments', paymentRoutes);
 
