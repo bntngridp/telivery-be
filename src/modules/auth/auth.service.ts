@@ -4,6 +4,7 @@ import { prisma } from '../../config/prisma';
 import { env } from '../../config/env';
 import { generateOtp } from '../../utils/helpers';
 import { ConflictError, NotFoundError, UnauthorizedError } from '../../utils/errors';
+import { sendOtp } from '../../services/notification/otp.sender';
 import {
     RegisterBuyerDto,
     LoginOtpDto,
@@ -24,11 +25,20 @@ function signToken(payload: object, expiresIn: SignOptions['expiresIn']): string
 }
 
 async function issueOtp(phone: string): Promise<string> {
+    if (!phone) {
+        throw new Error('Phone number is required to issue OTP');
+    }
     const otp = generateOtp(5);
     const expiredAt = new Date(Date.now() + OTP_EXPIRE_MINUTES * 60_000);
     await prisma.otp_verify.create({ data: { phone, otp, expiredAt } });
-    // eslint-disable-next-line no-console
-    console.log(`[OTP] ${otp} -> ${phone}`);
+
+    // Fire-and-forget: jika gateway gagal, OTP sudah tersimpan di DB
+    // sehingga user bisa request ulang. Error hanya dicatat.
+    sendOtp(phone, otp).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error('[auth] OTP dispatch failed:', err);
+    });
+
     return otp;
 }
 

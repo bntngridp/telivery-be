@@ -17,6 +17,9 @@ export const env = {
     JWT_SECRET: required('JWT_SECRET', 'cheva_telivery_dev_secret_change_me'),
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? '1d',
     SELLER_JWT_EXPIRES_IN: process.env.SELLER_JWT_EXPIRES_IN ?? '7d',
+    OTP_GATEWAY_URL: process.env.OTP_GATEWAY_URL ?? '',
+    OTP_GATEWAY_TOKEN: process.env.OTP_GATEWAY_TOKEN ?? '',
+    OTP_DRY_RUN: (process.env.OTP_DRY_RUN ?? 'true').toLowerCase() !== 'false',
 };
 
 export const isProduction = env.NODE_ENV === 'production';
