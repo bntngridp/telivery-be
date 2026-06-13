@@ -88,9 +88,11 @@ model pembayaran {
   status_pembayaran String?   @db.VarChar(50)
   metode_pembayaran String?   @db.VarChar(50)
   waktu_pembayaran  DateTime? @db.DateTime(0)
+  bukti_bayar       String?   @db.Text
+  catatan_penjual   String?   @db.Text
   pesanan           pesanan?  @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "pembayaran_ibfk_1")
 
-  @@index([pesanan_id], map: "pesanan_id")
+  @@index([pesanan_id], map: "pembayaran_pesanan_id_fkey")
 }
 
 model pembeli {

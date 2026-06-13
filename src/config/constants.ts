@@ -55,11 +55,13 @@ export const UPLOAD_PATHS = {
     KTP: './documents/ktp',
     OWNER_FACE: './documents/owner_face',
     PRODUCTS: './documents/products',
+    PAYMENT_RECEIPTS: './documents/payment_receipts',
 } as const;
 
 export const UPLOAD_LIMITS = {
     SELLER_DOCS: 10 * 1024 * 1024,
     PRODUCT_IMAGE: 5 * 1024 * 1024,
+    PAYMENT_RECEIPT: 5 * 1024 * 1024,
 } as const;
 
 export const PAGINATION = {

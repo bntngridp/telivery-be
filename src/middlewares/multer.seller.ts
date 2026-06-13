@@ -7,6 +7,13 @@ import { BadRequestError } from '../utils/errors';
 import { sanitizeFileName } from '../utils/helpers';
 
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/jpg']);
+const ALLOWED_RECEIPT_MIME = new Set([
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/jpg',
+    'application/pdf',
+]);
 
 function ensureDir(dir: string): void {
     if (!fs.existsSync(dir)) {
@@ -26,6 +33,9 @@ const storage = multer.diskStorage({
                 break;
             case 'gambar':
                 folder = UPLOAD_PATHS.PRODUCTS;
+                break;
+            case 'receipt':
+                folder = UPLOAD_PATHS.PAYMENT_RECEIPTS;
                 break;
             default:
                 folder = path.join('./documents', 'other');
@@ -49,6 +59,14 @@ function imageFilter(_req: Request, file: Express.Multer.File, cb: FileFilterCal
     cb(new BadRequestError(`Unsupported file type: ${file.mimetype}`));
 }
 
+function receiptFilter(_req: Request, file: Express.Multer.File, cb: FileFilterCallback): void {
+    if (ALLOWED_RECEIPT_MIME.has(file.mimetype)) {
+        cb(null, true);
+        return;
+    }
+    cb(new BadRequestError(`Unsupported file type: ${file.mimetype}`));
+}
+
 export const uploadSellerDocs = multer({
     storage,
     fileFilter: imageFilter,
@@ -61,8 +79,15 @@ export const uploadProductImage = multer({
     limits: { fileSize: UPLOAD_LIMITS.PRODUCT_IMAGE },
 });
 
+export const uploadPaymentReceipt = multer({
+    storage,
+    fileFilter: receiptFilter,
+    limits: { fileSize: UPLOAD_LIMITS.PAYMENT_RECEIPT },
+});
+
 export const uploadProductImageSingle = uploadProductImage.single('gambar');
 export const uploadSellerDocsFields = uploadSellerDocs.fields([
     { name: 'ownerKtpPhoto', maxCount: 1 },
     { name: 'ownerFacePhoto', maxCount: 1 },
 ]);
+export const uploadPaymentReceiptSingle = uploadPaymentReceipt.single('receipt');

@@ -9,6 +9,7 @@ import buyerStoreRoutes from './modules/store/store.routes';
 import orderSellerRoutes from './modules/order/order.routes';
 import buyerOrderRoutes from './modules/order/buyer.order.routes';
 import buyerProductRoutes from './modules/product/buyer.routes';
+import paymentRoutes from './modules/payment/payment.routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
 const app = express();
@@ -42,6 +43,7 @@ app.use('/api/buyer/products', buyerProductRoutes);
 app.use('/api/buyer/stores', buyerStoreRoutes);
 app.use('/api/buyer/orders', buyerOrderRoutes);
 app.use('/api/seller/orders', orderSellerRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.use(notFoundHandler);
 app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
