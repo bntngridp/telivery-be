@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../config/prisma';
+import { ORDER_STATUS, PAYMENT_STATUS } from '../../config/constants';
 
 export const buyerOrderService = {
   async createOrder(userId: number, data: {
@@ -73,7 +72,7 @@ export const buyerOrderService = {
           mitra_id: Number(storeId),
           total_harga: totalAmount,
           alamat_pengiriman: data.alamat_pengiriman,
-          status_pesanan: 'pending',
+          status_pesanan: ORDER_STATUS.PENDING,
           metode_pembayaran: data.metode_pembayaran,
           waktu_pesan: new Date(),
         },
@@ -117,7 +116,7 @@ export const buyerOrderService = {
       await prisma.pembayaran.create({
         data: {
           pesanan_id: newOrder.pesanan_id,
-          status_pembayaran: 'pending',
+          status_pembayaran: PAYMENT_STATUS.PENDING,
           metode_pembayaran: data.metode_pembayaran,
           waktu_pembayaran: null
         }
@@ -218,7 +217,7 @@ export const buyerOrderService = {
       where: {
         pesanan_id: orderId,
         user_id: userId,
-        status_pesanan: 'pending'
+        status_pesanan: ORDER_STATUS.PENDING
       }
     });
 
@@ -230,7 +229,7 @@ export const buyerOrderService = {
         pesanan_id: orderId
       },
       data: {
-        status_pesanan: 'canceled'
+        status_pesanan: ORDER_STATUS.CANCELED
       },
       include: {
         penjual: {
@@ -262,7 +261,7 @@ export const buyerOrderService = {
 
     await prisma.pembayaran.updateMany({
       where: { pesanan_id: orderId },
-      data: { status_pembayaran: 'canceled' }
+      data: { status_pembayaran: PAYMENT_STATUS.CANCELED }
     });
 
     if (updatedOrder.mitra_id) {
@@ -285,7 +284,7 @@ export const buyerOrderService = {
       where: {
         pesanan_id: orderId,
         user_id: userId,
-        status_pesanan: 'delivered'
+        status_pesanan: ORDER_STATUS.DELIVERED
       }
     });
 
@@ -298,7 +297,7 @@ export const buyerOrderService = {
         pesanan_id: orderId
       },
       data: {
-        status_pesanan: 'completed',
+        status_pesanan: ORDER_STATUS.COMPLETED,
         waktu_diterima: new Date()
       },
       include: {
@@ -314,10 +313,10 @@ export const buyerOrderService = {
     await prisma.pembayaran.updateMany({
       where: {
         pesanan_id: orderId,
-        status_pembayaran: 'pending'
+        status_pembayaran: PAYMENT_STATUS.PENDING
       },
       data: {
-        status_pembayaran: 'paid',
+        status_pembayaran: PAYMENT_STATUS.PAID,
         waktu_pembayaran: new Date()
       }
     });
@@ -412,78 +411,78 @@ export const buyerOrderService = {
       return null;
     }
 
-    const statusHistory = [
+    const statusHistory: Array<{ status: string; label: string; time: Date | null; completed: boolean }> = [
       {
-        status: 'pending',
+        status: ORDER_STATUS.PENDING,
         label: 'Pesanan Dibuat',
         time: order.waktu_pesan,
-        completed: true
-      }
+        completed: true,
+      },
     ];
 
     const currentStatus = order.status_pesanan;
 
-    if (['accepted', 'processing', 'delivered', 'completed'].includes(currentStatus || '')) {
+    if ([ORDER_STATUS.ACCEPTED, ORDER_STATUS.PROCESSING, ORDER_STATUS.DELIVERED, ORDER_STATUS.COMPLETED].includes(currentStatus as never)) {
       statusHistory.push({
-        status: 'accepted',
+        status: ORDER_STATUS.ACCEPTED,
         label: 'Pesanan Diterima Penjual',
         time: null,
-        completed: true
+        completed: true,
       });
     } else {
       statusHistory.push({
-        status: 'accepted',
+        status: ORDER_STATUS.ACCEPTED,
         label: 'Pesanan Diterima Penjual',
         time: null,
-        completed: false
+        completed: false,
       });
     }
 
-    if (['processing', 'delivered', 'completed'].includes(currentStatus || '')) {
+    if ([ORDER_STATUS.PROCESSING, ORDER_STATUS.DELIVERED, ORDER_STATUS.COMPLETED].includes(currentStatus as never)) {
       statusHistory.push({
-        status: 'processing',
+        status: ORDER_STATUS.PROCESSING,
         label: 'Pesanan Sedang Diproses',
         time: null,
-        completed: true
+        completed: true,
       });
     } else {
       statusHistory.push({
-        status: 'processing',
+        status: ORDER_STATUS.PROCESSING,
         label: 'Pesanan Sedang Diproses',
         time: null,
-        completed: false
+        completed: false,
       });
     }
 
-    if (['delivered', 'completed'].includes(currentStatus || '')) {
+    if ([ORDER_STATUS.DELIVERED, ORDER_STATUS.COMPLETED].includes(currentStatus as never)) {
       statusHistory.push({
-        status: 'delivered',
+        status: ORDER_STATUS.DELIVERED,
         label: 'Pesanan Dikirim',
         time: order.waktu_dikirim,
-        completed: true
+        completed: true,
       });
     } else {
       statusHistory.push({
-        status: 'delivered',
+        status: ORDER_STATUS.DELIVERED,
         label: 'Pesanan Dikirim',
         time: null,
-        completed: false
+        completed: false,
       });
     }
 
-    if (currentStatus === 'completed') {
+    if (currentStatus === ORDER_STATUS.COMPLETED) {
       statusHistory.push({
-        status: 'completed',
+        status: ORDER_STATUS.COMPLETED,
         label: 'Pesanan Selesai',
         time: order.waktu_diterima,
-        completed: true
+        completed: true,
       });
     } else {
       statusHistory.push({
-        status: 'completed',
+        status: ORDER_STATUS.COMPLETED,
         label: 'Pesanan Selesai',
         time: null,
-        completed: false
+        completed: false,
       });
     }
 
@@ -524,7 +523,7 @@ export const buyerOrderService = {
       where: {
         user_id: userId,
         status_pesanan: {
-          in: ['completed', 'delivered']
+          in: [ORDER_STATUS.COMPLETED, ORDER_STATUS.DELIVERED]
         }
       },
       _sum: {
@@ -582,7 +581,7 @@ export const buyerOrderService = {
       where: {
         pesanan_id: orderId,
         user_id: userId,
-        status_pesanan: 'completed'
+        status_pesanan: ORDER_STATUS.COMPLETED
       }
     });
 

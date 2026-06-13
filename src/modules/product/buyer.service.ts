@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../config/prisma';
 
 export const buyerProductService = {
   async getAllProducts(page: number = 1, limit: number = 10) {

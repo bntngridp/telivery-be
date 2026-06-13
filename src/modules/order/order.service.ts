@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../config/prisma';
+import { ORDER_STATUS } from '../../config/constants';
 
 export const orderService = {
   async getSellerOrders(sellerId: number, page: number = 1, limit: number = 10) {
@@ -148,7 +147,7 @@ export const orderService = {
       where: {
         pesanan_id: orderId,
         mitra_id: sellerId,
-        status_pesanan: 'pending'
+        status_pesanan: ORDER_STATUS.PENDING
       }
     });
 
@@ -160,7 +159,7 @@ export const orderService = {
         pesanan_id: orderId
       },
       data: {
-        status_pesanan: 'accepted'
+        status_pesanan: ORDER_STATUS.ACCEPTED
       },
       include: {
         pembeli: {
@@ -192,7 +191,7 @@ export const orderService = {
       where: {
         pesanan_id: orderId,
         mitra_id: sellerId,
-        status_pesanan: 'pending'
+        status_pesanan: ORDER_STATUS.PENDING
       }
     });
 
@@ -204,7 +203,7 @@ export const orderService = {
         pesanan_id: orderId
       },
       data: {
-        status_pesanan: 'rejected'
+        status_pesanan: ORDER_STATUS.REJECTED
       },
       include: {
         pembeli: {
@@ -238,7 +237,7 @@ export const orderService = {
       where: {
         pesanan_id: orderId,
         mitra_id: sellerId,
-        status_pesanan: 'accepted'
+        status_pesanan: ORDER_STATUS.ACCEPTED
       }
     });
 
@@ -250,7 +249,7 @@ export const orderService = {
         pesanan_id: orderId
       },
       data: {
-        status_pesanan: 'processing'
+        status_pesanan: ORDER_STATUS.PROCESSING
       },
       include: {
         pembeli: {
@@ -281,7 +280,7 @@ export const orderService = {
       where: {
         pesanan_id: orderId,
         mitra_id: sellerId,
-        status_pesanan: 'processing'
+        status_pesanan: ORDER_STATUS.PROCESSING
       }
     });
 
@@ -293,7 +292,7 @@ export const orderService = {
         pesanan_id: orderId
       },
       data: {
-        status_pesanan: 'delivered',
+        status_pesanan: ORDER_STATUS.DELIVERED,
         waktu_dikirim: new Date()
       },
       include: {
@@ -325,7 +324,7 @@ export const orderService = {
       where: {
         mitra_id: sellerId,
         status_pesanan: {
-          in: ['completed', 'delivered']
+          in: [ORDER_STATUS.COMPLETED, ORDER_STATUS.DELIVERED]
         }
       },
       _sum: {

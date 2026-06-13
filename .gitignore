@@ -47,6 +47,17 @@ web_modules/
 
 # TypeScript cache
 *.tsbuildinfo
+/dist
+/generated/prisma
+# Local uploads (do not commit user files)
+/documents/ktp/*
+!/documents/ktp/.gitkeep
+/documents/owner_face/*
+!/documents/owner_face/.gitkeep
+/documents/products/*
+!/documents/products/.gitkeep
+/documents/other/*
+!/documents/other/.gitkeep
 
 # Optional npm cache directory
 .npm

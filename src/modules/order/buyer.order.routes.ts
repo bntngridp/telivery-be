@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { buyerOrderController } from './buyer.order.controller';
-import { jwtMiddleware } from '../middlewares/jwt.middleware';
+import { jwtMiddleware } from '../../middlewares/jwt.middleware';
 
 const router = Router();
 

@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../config/prisma';
+import { STORE_STATUS, SELLER_VERIFICATION } from '../../config/constants';
 
 export const storeService = {
   async getAllStores(page: number = 1, limit: number = 10) {
@@ -10,8 +9,8 @@ export const storeService = {
       prisma.penjual.findMany({
         where: {
           // Menghapus filter ketat untuk mengambil semua toko
-          // status_toko: 'OPEN',
-          // status_verifikasi: 'approved'
+          // status_toko: STORE_STATUS.OPEN,
+          // status_verifikasi: SELLER_VERIFICATION.APPROVED
         },
         select: {
           mitra_id: true,
@@ -32,8 +31,8 @@ export const storeService = {
       prisma.penjual.count({
         where: {
           // Menghapus filter ketat untuk menghitung semua toko
-          // status_toko: 'OPEN',
-          // status_verifikasi: 'approved'
+          // status_toko: STORE_STATUS.OPEN,
+          // status_verifikasi: SELLER_VERIFICATION.APPROVED
         }
       })
     ]);
@@ -52,8 +51,8 @@ export const storeService = {
     const store = await prisma.penjual.findFirst({
       where: {
         mitra_id: id,
-        status_toko: 'OPEN',
-        status_verifikasi: 'approved'
+        status_toko: STORE_STATUS.OPEN,
+        status_verifikasi: SELLER_VERIFICATION.APPROVED
       },
       select: {
         mitra_id: true,
@@ -113,8 +112,8 @@ export const storeService = {
       prisma.penjual.findMany({
         where: {
           AND: {
-            status_toko: 'OPEN',
-            status_verifikasi: 'approved'
+            status_toko: STORE_STATUS.OPEN,
+            status_verifikasi: SELLER_VERIFICATION.APPROVED
           },
           OR: [
             {
@@ -146,8 +145,8 @@ export const storeService = {
       prisma.penjual.count({
         where: {
           AND: {
-            status_toko: 'OPEN',
-            status_verifikasi: 'approved'
+            status_toko: STORE_STATUS.OPEN,
+            status_verifikasi: SELLER_VERIFICATION.APPROVED
           },
           OR: [
             {
@@ -199,8 +198,8 @@ export const storeService = {
       prisma.penjual.findMany({
         where: {
           jenis_usaha: jenisUsaha,
-          status_toko: 'OPEN',
-          status_verifikasi: 'approved'
+          status_toko: STORE_STATUS.OPEN,
+          status_verifikasi: SELLER_VERIFICATION.APPROVED
         },
         select: {
           mitra_id: true,
@@ -219,8 +218,8 @@ export const storeService = {
       prisma.penjual.count({
         where: {
           jenis_usaha: jenisUsaha,
-          status_toko: 'OPEN',
-          status_verifikasi: 'approved'
+          status_toko: STORE_STATUS.OPEN,
+          status_verifikasi: SELLER_VERIFICATION.APPROVED
         }
       })
     ]);
@@ -242,8 +241,8 @@ export const storeService = {
     // Get stores with most orders
     const stores = await prisma.penjual.findMany({
       where: {
-        status_toko: 'OPEN',
-        status_verifikasi: 'approved'
+        status_toko: STORE_STATUS.OPEN,
+        status_verifikasi: SELLER_VERIFICATION.APPROVED
       },
       include: {
         pesanan: true
@@ -334,8 +333,8 @@ export const storeService = {
         if (businessTypes.length > 0) {
           recommendedStores = await prisma.penjual.findMany({
             where: {
-              status_toko: 'OPEN',
-              status_verifikasi: 'approved',
+              status_toko: STORE_STATUS.OPEN,
+              status_verifikasi: SELLER_VERIFICATION.APPROVED,
               jenis_usaha: {
                 in: businessTypes
               },
@@ -362,8 +361,8 @@ export const storeService = {
       // Menghindari penggunaan pesanan._count yang mungkin tidak didukung
       recommendedStores = await prisma.penjual.findMany({
         where: {
-          status_toko: 'OPEN',
-          status_verifikasi: 'approved'
+          status_toko: STORE_STATUS.OPEN,
+          status_verifikasi: SELLER_VERIFICATION.APPROVED
         },
         select: {
           mitra_id: true,
@@ -389,8 +388,8 @@ export const storeService = {
     const store = await prisma.penjual.findFirst({
       where: {
         mitra_id: storeId,
-        status_toko: 'OPEN',
-        status_verifikasi: 'approved'
+        status_toko: STORE_STATUS.OPEN,
+        status_verifikasi: SELLER_VERIFICATION.APPROVED
       },
       select: {
         mitra_id: true,

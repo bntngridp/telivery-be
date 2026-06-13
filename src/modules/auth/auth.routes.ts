@@ -11,8 +11,10 @@ import {
   verifyResetOtpSeller,
   resetPasswordSeller
 } from "./auth.controller";
-import { uploadSellerDocs } from "../middlewares/multer.seller";
-import { jwtMiddleware } from "../middlewares/jwt.middleware";
+import { uploadSellerDocs } from "../../middlewares/multer.seller";
+import { jwtMiddleware } from "../../middlewares/jwt.middleware";
+
+import { uploadSellerDocsFields } from "../../middlewares/multer.seller";
 
 const router = Router();
 
@@ -31,10 +33,7 @@ router.patch("/seller/reset-password", resetPasswordSeller);
 router.post(
     "/seller/register-store",
     jwtMiddleware,
-    uploadSellerDocs.fields([
-        { name: "ownerKtpPhoto", maxCount: 1 },
-        { name: "ownerFacePhoto", maxCount: 1 },
-    ]),
+    uploadSellerDocsFields,
     registerSellerStore
 );
 
