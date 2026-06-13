@@ -20,6 +20,8 @@ import {
     buyerRouter as notifBuyerRouter,
     sellerRouter as notifSellerRouter,
 } from './modules/notification/notification.routes';
+import cartRoutes from './modules/cart/cart.routes';
+import checkoutRoutes from './modules/checkout/checkout.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 import { prisma } from './config/prisma';
@@ -87,6 +89,8 @@ app.use('/api/buyer/stores', buyerStoreRoutes);
 app.use('/api/buyer/orders', buyerOrderRoutes);
 app.use('/api/buyer/profile', buyerProfileRoutes);
 app.use('/api/buyer/notifications', notifBuyerRouter);
+app.use('/api/buyer/cart', cartRoutes);
+app.use('/api/buyer/checkout', checkoutRoutes);
 app.use('/api/seller/orders', orderSellerRoutes);
 app.use('/api/seller', partnerRoutes);
 app.use('/api/seller/notifications', notifSellerRouter);
