@@ -87,3 +87,10 @@ export const resetPasswordSeller = asyncHandler(async (req: Request, res: Respon
     const result = await authService.resetPasswordSeller(data);
     return success(res, result.message, result);
 });
+
+export const adminLogin = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body ?? {};
+    if (!email || !password) throw new BadRequestError('Email dan password wajib diisi');
+    const result = await authService.adminLogin(email, password);
+    return success(res, 'Login admin berhasil', result);
+});

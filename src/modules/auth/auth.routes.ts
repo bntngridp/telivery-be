@@ -11,6 +11,7 @@ import {
     forgotPasswordSeller,
     verifyResetOtpSeller,
     resetPasswordSeller,
+    adminLogin,
 } from './auth.controller';
 import { jwtMiddleware } from '../../middlewares/jwt.middleware';
 import { uploadSellerDocsFields } from '../../middlewares/multer.seller';
@@ -35,6 +36,8 @@ const otpLimiter = rateLimit({
 router.post('/buyer/register', registerBuyer);
 router.post('/buyer/request-otp', otpLimiter, loginOtp);
 router.post('/buyer/verify-otp', verifyOtp);
+
+router.post('/admin/login', adminLogin);
 
 router.post('/seller/request-otp', otpLimiter, requestSellerOtp);
 router.post('/seller/verify-otp', verifyOtpAndRegisterSeller);

@@ -20,6 +20,7 @@ import {
     buyerRouter as notifBuyerRouter,
     sellerRouter as notifSellerRouter,
 } from './modules/notification/notification.routes';
+import adminRoutes from './modules/admin/admin.routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 import { prisma } from './config/prisma';
 
@@ -92,6 +93,7 @@ app.use('/api/seller/notifications', notifSellerRouter);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/service/seller', serviceSellerRouter);
 app.use('/api/service/buyer', serviceBuyerRouter);
+app.use('/api/admin', adminRoutes);
 
 app.use(notFoundHandler);
 app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {

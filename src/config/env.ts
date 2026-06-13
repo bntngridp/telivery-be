@@ -20,6 +20,9 @@ export const env = {
     OTP_GATEWAY_URL: process.env.OTP_GATEWAY_URL ?? '',
     OTP_GATEWAY_TOKEN: process.env.OTP_GATEWAY_TOKEN ?? '',
     OTP_DRY_RUN: (process.env.OTP_DRY_RUN ?? 'true').toLowerCase() !== 'false',
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL ?? 'bntngrid@gmail.com',
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD ?? 'admin123',
+    ADMIN_JWT_EXPIRES_IN: process.env.ADMIN_JWT_EXPIRES_IN ?? '1d',
 };
 
 export const isProduction = env.NODE_ENV === 'production';

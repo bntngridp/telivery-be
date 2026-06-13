@@ -157,6 +157,17 @@ export const authService = {
         return { token };
     },
 
+    async adminLogin(email: string, password: string) {
+        if (email !== env.ADMIN_EMAIL || password !== env.ADMIN_PASSWORD) {
+            throw new UnauthorizedError('Email atau password admin salah');
+        }
+        const token = signToken(
+            { adminId: -1, role: 'admin' },
+            env.ADMIN_JWT_EXPIRES_IN as SignOptions['expiresIn'],
+        );
+        return { token };
+    },
+
     async forgotPasswordSeller(data: ForgotPasswordSellerDto) {
         const seller = await prisma.penjual.findFirst({
             where: {

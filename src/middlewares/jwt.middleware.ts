@@ -3,11 +3,12 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { env } from '../config/env';
 import { UnauthorizedError } from '../utils/errors';
 
-export type Role = 'pembeli' | 'penjual';
+export type Role = 'pembeli' | 'penjual' | 'admin';
 
 export interface AuthUser {
     id?: number;
     sellerId?: number;
+    adminId?: number;
     role: Role;
 }
 
@@ -22,6 +23,7 @@ declare global {
 export interface JwtPayloadDecoded extends JwtPayload {
     id?: number;
     sellerId?: number;
+    adminId?: number;
     role?: Role;
 }
 
@@ -49,11 +51,15 @@ export function jwtMiddleware(req: Request, _res: Response, next: NextFunction):
         if (decoded.role === 'penjual' && typeof decoded.sellerId !== 'number') {
             throw new UnauthorizedError('Invalid seller token payload');
         }
+        if (decoded.role === 'admin' && typeof decoded.adminId !== 'number') {
+            throw new UnauthorizedError('Invalid admin token payload');
+        }
 
         req.user = {
             role: decoded.role,
             id: decoded.id,
             sellerId: decoded.sellerId,
+            adminId: decoded.adminId,
         };
 
         next();
