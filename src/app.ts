@@ -11,7 +11,14 @@ import buyerProductRoutes from './modules/product/buyer.routes';
 import buyerProfileRoutes from './modules/buyer/buyer.routes';
 import partnerRoutes from './modules/partner/partner.routes';
 import paymentRoutes from './modules/payment/payment.routes';
-import { sellerRouter as serviceSellerRouter, buyerRouter as serviceBuyerRouter } from './modules/service/service.routes';
+import {
+    buyerRouter as serviceBuyerRouter,
+    sellerRouter as serviceSellerRouter,
+} from './modules/service/service.routes';
+import {
+    buyerRouter as notifBuyerRouter,
+    sellerRouter as notifSellerRouter,
+} from './modules/notification/notification.routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
 const app = express();
@@ -43,9 +50,11 @@ app.use('/api/product', productRoutes);
 app.use('/api/buyer/products', buyerProductRoutes);
 app.use('/api/buyer/stores', buyerStoreRoutes);
 app.use('/api/buyer/orders', buyerOrderRoutes);
-app.use('/api/buyer', buyerProfileRoutes);
+app.use('/api/buyer/profile', buyerProfileRoutes);
+app.use('/api/buyer/notifications', notifBuyerRouter);
 app.use('/api/seller/orders', orderSellerRoutes);
 app.use('/api/seller', partnerRoutes);
+app.use('/api/seller/notifications', notifSellerRouter);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/service/seller', serviceSellerRouter);
 app.use('/api/service/buyer', serviceBuyerRouter);
