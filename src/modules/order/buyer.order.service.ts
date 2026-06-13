@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/prisma';
 import { ORDER_STATUS, PAYMENT_STATUS } from '../../config/constants';
 
@@ -279,7 +280,6 @@ export const buyerOrderService = {
     return updatedOrder;
   },
   async confirmOrder(orderId: number, userId: number) {
-    // Cek status pesanan saat ini
     const order = await prisma.pesanan.findFirst({
       where: {
         pesanan_id: orderId,
@@ -292,48 +292,90 @@ export const buyerOrderService = {
       return null;
     }
 
-    const updatedOrder = await prisma.pesanan.update({
-      where: {
-        pesanan_id: orderId
-      },
-      data: {
-        status_pesanan: ORDER_STATUS.COMPLETED,
-        waktu_diterima: new Date()
-      },
-      include: {
-        penjual: {
-          select: {
-            mitra_id: true,
-            nama_toko: true
-          }
-        }
-      }
-    });
+    const now = new Date();
+    const totalHarga = new Prisma.Decimal(order.total_harga ?? 0);
 
-    await prisma.pembayaran.updateMany({
-      where: {
-        pesanan_id: orderId,
-        status_pembayaran: PAYMENT_STATUS.PENDING
-      },
-      data: {
-        status_pembayaran: PAYMENT_STATUS.PAID,
-        waktu_pembayaran: new Date()
-      }
-    });
-
-    if (updatedOrder.mitra_id) {
-      await prisma.notifikasi.create({
+    const result = await prisma.$transaction(async (tx) => {
+      const updatedOrder = await tx.pesanan.update({
+        where: { pesanan_id: orderId },
         data: {
-          mitra_id: updatedOrder.mitra_id,
-          isi_pesan: `Pesanan #${orderId} telah diterima oleh pembeli dan diselesaikan.`,
-          waktu_kirim: new Date(),
-          tipe: 'order_completed',
-          status_dibaca: false
-        }
+          status_pesanan: ORDER_STATUS.COMPLETED,
+          waktu_diterima: now,
+        },
+        include: {
+          penjual: {
+            select: {
+              mitra_id: true,
+              nama_toko: true,
+            },
+          },
+        },
       });
-    }
 
-    return updatedOrder;
+      await tx.pembayaran.updateMany({
+        where: {
+          pesanan_id: orderId,
+          status_pembayaran: PAYMENT_STATUS.PENDING,
+        },
+        data: {
+          status_pembayaran: PAYMENT_STATUS.PAID,
+          waktu_pembayaran: now,
+        },
+      });
+
+      if (updatedOrder.mitra_id && totalHarga.greaterThan(0)) {
+        const existingWallet = await tx.dompet_mitra.findFirst({
+          where: { mitra_id: updatedOrder.mitra_id },
+        });
+
+        let walletId: number;
+        if (existingWallet) {
+          walletId = existingWallet.id_dompet;
+          await tx.dompet_mitra.update({
+            where: { id_dompet: existingWallet.id_dompet },
+            data: {
+              saldo: { increment: totalHarga },
+              tanggal_diubah: now,
+            },
+          });
+        } else {
+          const created = await tx.dompet_mitra.create({
+            data: {
+              mitra_id: updatedOrder.mitra_id,
+              saldo: totalHarga,
+              status_dompet: 'active',
+              tanggal_dibuat: now,
+              tanggal_diubah: now,
+            },
+          });
+          walletId = created.id_dompet;
+        }
+
+        await tx.riwayat_dompet.create({
+          data: {
+            id_dompet: walletId,
+            jenis_transaksi: 'credit',
+            jumlah_diterima: totalHarga,
+            deskripsi_transaksi: `Pembayaran pesanan #${orderId}`,
+            waktu_transaksi: now,
+          },
+        });
+
+        await tx.notifikasi.create({
+          data: {
+            mitra_id: updatedOrder.mitra_id,
+            isi_pesan: `Pesanan #${orderId} telah diterima oleh pembeli. Saldo dompet bertambah ${totalHarga.toString()}.`,
+            waktu_kirim: now,
+            tipe: 'order_completed',
+            status_dibaca: false,
+          },
+        });
+      }
+
+      return updatedOrder;
+    });
+
+    return result;
   },
 
   async getOrdersByStatus(userId: number, status: string, page: number = 1, limit: number = 10) {

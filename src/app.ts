@@ -9,6 +9,7 @@ import orderSellerRoutes from './modules/order/order.routes';
 import buyerOrderRoutes from './modules/order/buyer.order.routes';
 import buyerProductRoutes from './modules/product/buyer.routes';
 import buyerProfileRoutes from './modules/buyer/buyer.routes';
+import partnerRoutes from './modules/partner/partner.routes';
 import paymentRoutes from './modules/payment/payment.routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
@@ -43,6 +44,7 @@ app.use('/api/buyer/stores', buyerStoreRoutes);
 app.use('/api/buyer/orders', buyerOrderRoutes);
 app.use('/api/buyer', buyerProfileRoutes);
 app.use('/api/seller/orders', orderSellerRoutes);
+app.use('/api/seller', partnerRoutes);
 app.use('/api/payments', paymentRoutes);
 
 app.use(notFoundHandler);
