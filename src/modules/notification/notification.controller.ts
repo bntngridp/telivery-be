@@ -32,10 +32,11 @@ export const buyerNotificationController = {
             pagination.limit,
             tipe,
         );
+
         return paginated(
             res,
             'Daftar notifikasi berhasil diambil',
-            result.notifications,
+            { notifications: result.notifications },
             result.pagination.page,
             result.pagination.limit,
             result.pagination.total,
@@ -85,7 +86,7 @@ export const sellerNotificationController = {
         return paginated(
             res,
             'Daftar notifikasi berhasil diambil',
-            result.notifications,
+            { notifications: result.notifications },
             result.pagination.page,
             result.pagination.limit,
             result.pagination.total,

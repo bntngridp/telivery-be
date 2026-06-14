@@ -316,7 +316,9 @@ describe('Notification endpoints (role isolation)', () => {
             .get(`${PREFIX}/buyer/notifications`)
             .set('Authorization', `Bearer ${token}`);
         expect(res.status).toBe(200);
-        expect(res.body.data).toHaveLength(1);
+        // After my Issue #8 fix, controller wraps response: data: { notifications: [...], pagination: ... }
+        const notifList = Array.isArray(res.body.data) ? res.body.data : res.body.data?.notifications;
+        expect(notifList).toHaveLength(1);
         expect(res.body.pagination).toBeDefined();
     });
 

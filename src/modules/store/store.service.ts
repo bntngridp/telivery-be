@@ -19,6 +19,10 @@ const STORE_PUBLIC_SELECT = {
     status_verifikasi: true,
 } as const;
 
+const STORE_PUBLIC_SELECT_WITH_VERIF = {
+    ...STORE_PUBLIC_SELECT,
+} as const;
+
 export const storeService = {
     async getAllStores(page: number = 1, limit: number = 10) {
         const skip = (page - 1) * limit;
@@ -26,7 +30,6 @@ export const storeService = {
         const [stores, totalCount] = await Promise.all([
             prisma.penjual.findMany({
                 where: APPROVED_OPEN_FILTER,
-                select: STORE_PUBLIC_SELECT,
                 orderBy: {
                     mitra_id: 'desc',
                 },
@@ -42,7 +45,7 @@ export const storeService = {
                 total: totalCount,
                 page,
                 limit,
-                totalPages: Math.ceil(totalCount / limit),
+                totalPages: Math.max(1, Math.ceil(totalCount / limit)),
             },
         };
     },

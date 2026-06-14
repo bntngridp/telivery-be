@@ -31,7 +31,7 @@ export async function optimizeImage(
 
     let pipeline = sharp(filePath)
         .rotate()
-        .resize({ maxWidth, maxHeight, fit: 'inside', withoutEnlargement: true });
+        .resize({ width: maxWidth, height: maxHeight, fit: 'inside', withoutEnlargement: true });
 
     switch (detectedFormat) {
         case 'png':

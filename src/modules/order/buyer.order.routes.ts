@@ -11,6 +11,7 @@ router.get('/status/:status', buyerOrderController.getOrdersByStatus);
 router.get('/track/:id', buyerOrderController.trackOrder);
 router.get('/', buyerOrderController.getBuyerOrders);
 router.get('/:id', buyerOrderController.getOrderById);
+router.get('/:id/track', buyerOrderController.trackOrder);
 router.patch('/:id/cancel', buyerOrderController.cancelOrder);
 router.patch('/:id/confirm', buyerOrderController.confirmOrder);
 router.post('/:id/review', buyerOrderController.reviewOrder);
