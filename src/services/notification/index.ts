@@ -1,2 +1,2 @@
-export { sendOtp } from './otp.sender';
-export type { OtpDispatchResult } from './otp.sender';
+export { sendOtp } from "./otp.sender";
+export type { OtpDispatchResult } from "./otp.sender";

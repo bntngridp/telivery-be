@@ -1,4 +1,4 @@
-import { prisma } from '../../config/prisma';
+import { prisma } from "../../config/prisma";
 
 export const buyerProductService = {
   async getAllProducts(page: number = 1, limit: number = 10) {
@@ -9,8 +9,8 @@ export const buyerProductService = {
         where: {
           status_ketersediaan: true,
           stok_produk: {
-            gt: 0
-          }
+            gt: 0,
+          },
         },
         include: {
           kategori: true,
@@ -18,24 +18,24 @@ export const buyerProductService = {
             select: {
               nama_toko: true,
               alamat_toko: true,
-              status_toko: true
-            }
-          }
+              status_toko: true,
+            },
+          },
         },
         orderBy: {
-          produk_id: 'desc'
+          produk_id: "desc",
         },
         skip,
-        take: limit
+        take: limit,
       }),
       prisma.produk.count({
         where: {
           status_ketersediaan: true,
           stok_produk: {
-            gt: 0
-          }
-        }
-      })
+            gt: 0,
+          },
+        },
+      }),
     ]);
 
     return {
@@ -44,8 +44,8 @@ export const buyerProductService = {
         total: totalCount,
         page,
         limit,
-        totalPages: Math.ceil(totalCount / limit)
-      }
+        totalPages: Math.ceil(totalCount / limit),
+      },
     };
   },
 
@@ -53,7 +53,7 @@ export const buyerProductService = {
     const product = await prisma.produk.findFirst({
       where: {
         produk_id: id,
-        status_ketersediaan: true
+        status_ketersediaan: true,
       },
       include: {
         kategori: true,
@@ -62,35 +62,39 @@ export const buyerProductService = {
             nama_toko: true,
             alamat_toko: true,
             status_toko: true,
-            jenis_usaha: true
-          }
-        }
-      }
+            jenis_usaha: true,
+          },
+        },
+      },
     });
 
     return product;
   },
 
-  async getProductsByCategory(kategoriParam: string, page: number = 1, limit: number = 10) {
+  async getProductsByCategory(
+    kategoriParam: string,
+    page: number = 1,
+    limit: number = 10,
+  ) {
     const skip = (page - 1) * limit;
 
     let kategori: string;
-    switch(kategoriParam) {
-      case 'makanan-minuman':
-        kategori = 'MAKANAN_MINUMAN';
+    switch (kategoriParam) {
+      case "makanan-minuman":
+        kategori = "MAKANAN_MINUMAN";
         break;
-      case 'air-galon':
-        kategori = 'AIR_GALON';
+      case "air-galon":
+        kategori = "AIR_GALON";
         break;
-      case 'laundry':
-        kategori = 'LAUNDRY';
+      case "laundry":
+        kategori = "LAUNDRY";
         break;
       default:
         kategori = kategoriParam.toUpperCase();
     }
 
     const kategoriRecord = await prisma.kategori.findFirst({
-      where: { nama_kategori: kategori }
+      where: { nama_kategori: kategori },
     });
 
     if (!kategoriRecord) {
@@ -103,8 +107,8 @@ export const buyerProductService = {
           id_kategori: kategoriRecord.id_kategori,
           status_ketersediaan: true,
           stok_produk: {
-            gt: 0
-          }
+            gt: 0,
+          },
         },
         include: {
           kategori: true,
@@ -112,25 +116,25 @@ export const buyerProductService = {
             select: {
               nama_toko: true,
               alamat_toko: true,
-              status_toko: true
-            }
-          }
+              status_toko: true,
+            },
+          },
         },
         orderBy: {
-          produk_id: 'desc'
+          produk_id: "desc",
         },
         skip,
-        take: limit
+        take: limit,
       }),
       prisma.produk.count({
         where: {
           id_kategori: kategoriRecord.id_kategori,
           status_ketersediaan: true,
           stok_produk: {
-            gt: 0
-          }
-        }
-      })
+            gt: 0,
+          },
+        },
+      }),
     ]);
 
     return {
@@ -140,8 +144,8 @@ export const buyerProductService = {
         total: totalCount,
         page,
         limit,
-        totalPages: Math.ceil(totalCount / limit)
-      }
+        totalPages: Math.ceil(totalCount / limit),
+      },
     };
   },
 
@@ -154,49 +158,49 @@ export const buyerProductService = {
           OR: [
             {
               nama_produk: {
-                contains: keyword
-              }
-            }
+                contains: keyword,
+              },
+            },
           ],
           AND: {
             status_ketersediaan: true,
             stok_produk: {
-              gt: 0
-            }
-          }
+              gt: 0,
+            },
+          },
         },
         include: {
           kategori: true,
           penjual: {
             select: {
               nama_toko: true,
-              alamat_toko: true
-            }
-          }
+              alamat_toko: true,
+            },
+          },
         },
         orderBy: {
-          produk_id: 'desc'
+          produk_id: "desc",
         },
         skip,
-        take: limit
+        take: limit,
       }),
       prisma.produk.count({
         where: {
           OR: [
             {
               nama_produk: {
-                contains: keyword
-              }
-            }
+                contains: keyword,
+              },
+            },
           ],
           AND: {
             status_ketersediaan: true,
             stok_produk: {
-              gt: 0
-            }
-          }
-        }
-      })
+              gt: 0,
+            },
+          },
+        },
+      }),
     ]);
 
     return {
@@ -206,8 +210,8 @@ export const buyerProductService = {
         total: totalCount,
         page,
         limit,
-        totalPages: Math.ceil(totalCount / limit)
-      }
+        totalPages: Math.ceil(totalCount / limit),
+      },
     };
   },
 
@@ -216,32 +220,32 @@ export const buyerProductService = {
       where: {
         status_ketersediaan: true,
         stok_produk: {
-          gt: 0
-        }
+          gt: 0,
+        },
       },
       include: {
         kategori: true,
         penjual: {
           select: {
             nama_toko: true,
-            alamat_toko: true
-          }
+            alamat_toko: true,
+          },
         },
-        detail_pesanan_produk: true
+        detail_pesanan_produk: true,
       },
       orderBy: {
         detail_pesanan_produk: {
-          _count: 'desc'
-        }
+          _count: "desc",
+        },
       },
-      take: limit
+      take: limit,
     });
 
-    const formattedProducts = popularProducts.map(product => {
+    const formattedProducts = popularProducts.map((product) => {
       const { detail_pesanan_produk, ...rest } = product;
       return {
         ...rest,
-        orderCount: detail_pesanan_produk.length
+        orderCount: detail_pesanan_produk.length,
       };
     });
 
@@ -254,54 +258,54 @@ export const buyerProductService = {
     if (userId) {
       const userOrders = await prisma.pesanan.findMany({
         where: {
-          user_id: userId
+          user_id: userId,
         },
         include: {
           detail_pesanan_produk: {
             include: {
               produk: {
                 include: {
-                  kategori: true
-                }
-              }
-            }
-          }
+                  kategori: true,
+                },
+              },
+            },
+          },
         },
         orderBy: {
-          waktu_pesan: 'desc'
+          waktu_pesan: "desc",
         },
-        take: 5
+        take: 5,
       });
 
       const orderedCategoryIds = userOrders
-        .flatMap(order => order.detail_pesanan_produk)
-        .map(detail => detail.produk?.id_kategori)
+        .flatMap((order) => order.detail_pesanan_produk)
+        .map((detail) => detail.produk?.id_kategori)
         .filter(Boolean) as number[];
 
       if (orderedCategoryIds.length > 0) {
         recommendedProducts = await prisma.produk.findMany({
           where: {
             id_kategori: {
-              in: orderedCategoryIds
+              in: orderedCategoryIds,
             },
             status_ketersediaan: true,
             stok_produk: {
-              gt: 0
-            }
+              gt: 0,
+            },
           },
           include: {
             kategori: true,
             penjual: {
               select: {
                 nama_toko: true,
-                alamat_toko: true
-              }
-            }
+                alamat_toko: true,
+              },
+            },
           },
           orderBy: {
-            produk_id: 'desc'
+            produk_id: "desc",
           },
-          take: limit
+          take: limit,
         });
       }
     }
@@ -311,25 +315,25 @@ export const buyerProductService = {
         where: {
           status_ketersediaan: true,
           stok_produk: {
-            gt: 0
-          }
+            gt: 0,
+          },
         },
         include: {
           kategori: true,
           penjual: {
             select: {
               nama_toko: true,
-              alamat_toko: true
-            }
-          }
+              alamat_toko: true,
+            },
+          },
         },
         orderBy: {
-          produk_id: 'desc'
+          produk_id: "desc",
         },
-        take: limit
+        take: limit,
       });
     }
 
     return recommendedProducts;
-  }
+  },
 };

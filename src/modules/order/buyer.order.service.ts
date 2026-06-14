@@ -1,8 +1,8 @@
-import { Prisma } from '@prisma/client';
-import { prisma } from '../../config/prisma';
-import { ORDER_STATUS, PAYMENT_STATUS } from '../../config/constants';
-import { BadRequestError } from '../../utils/errors';
-import { CreateOrderDto } from './buyer.order.schema';
+import { Prisma } from "@prisma/client";
+import { prisma } from "../../config/prisma";
+import { ORDER_STATUS, PAYMENT_STATUS } from "../../config/constants";
+import { BadRequestError } from "../../utils/errors";
+import { CreateOrderDto } from "./buyer.order.schema";
 
 export const buyerOrderService = {
   async createOrder(userId: number, data: CreateOrderDto) {
@@ -24,7 +24,9 @@ export const buyerOrderService = {
         : Promise.resolve([]),
       layananItems.length > 0
         ? prisma.layanan.findMany({
-            where: { layanan_id: { in: layananItems.map((i) => i.layanan_id) } },
+            where: {
+              layanan_id: { in: layananItems.map((i) => i.layanan_id) },
+            },
             include: {
               penjual: { select: { mitra_id: true, nama_toko: true } },
             },
@@ -33,15 +35,20 @@ export const buyerOrderService = {
     ]);
 
     if (productItems.length > 0 && products.length !== productItems.length) {
-      throw new BadRequestError('Beberapa produk tidak ditemukan atau tidak tersedia');
+      throw new BadRequestError(
+        "Beberapa produk tidak ditemukan atau tidak tersedia",
+      );
     }
     if (layananItems.length > 0 && layananList.length !== layananItems.length) {
-      throw new BadRequestError('Beberapa layanan tidak ditemukan');
+      throw new BadRequestError("Beberapa layanan tidak ditemukan");
     }
 
     for (const item of productItems) {
       const product = products.find((p) => p.produk_id === item.produk_id);
-      if (!product || (product.stok_produk !== null && product.stok_produk < item.jumlah)) {
+      if (
+        !product ||
+        (product.stok_produk !== null && product.stok_produk < item.jumlah)
+      ) {
         throw new BadRequestError(
           `Stok tidak mencukupi untuk produk ${product?.nama_produk || item.produk_id}`,
         );
@@ -49,8 +56,16 @@ export const buyerOrderService = {
     }
 
     type OrderItem =
-      | { kind: 'produk'; orderInput: { produk_id: number; jumlah: number }; detail: typeof products[number] }
-      | { kind: 'layanan'; orderInput: { layanan_id: number; jumlah: number }; detail: typeof layananList[number] };
+      | {
+          kind: "produk";
+          orderInput: { produk_id: number; jumlah: number };
+          detail: (typeof products)[number];
+        }
+      | {
+          kind: "layanan";
+          orderInput: { layanan_id: number; jumlah: number };
+          detail: (typeof layananList)[number];
+        };
 
     const itemsByStore: Record<number, OrderItem[]> = {};
     const pushItem = (storeId: number, item: OrderItem) => {
@@ -60,12 +75,12 @@ export const buyerOrderService = {
     for (const input of productItems) {
       const p = products.find((x) => x.produk_id === input.produk_id);
       if (!p?.mitra_id) continue;
-      pushItem(p.mitra_id, { kind: 'produk', orderInput: input, detail: p });
+      pushItem(p.mitra_id, { kind: "produk", orderInput: input, detail: p });
     }
     for (const input of layananItems) {
       const l = layananList.find((x) => x.layanan_id === input.layanan_id);
       if (!l?.mitra_id) continue;
-      pushItem(l.mitra_id, { kind: 'layanan', orderInput: input, detail: l });
+      pushItem(l.mitra_id, { kind: "layanan", orderInput: input, detail: l });
     }
 
     const orders = [];
@@ -75,7 +90,9 @@ export const buyerOrderService = {
 
       let totalAmount = new Prisma.Decimal(0);
       for (const it of items) {
-        const price = it.detail.harga ? new Prisma.Decimal(it.detail.harga) : new Prisma.Decimal(0);
+        const price = it.detail.harga
+          ? new Prisma.Decimal(it.detail.harga)
+          : new Prisma.Decimal(0);
         totalAmount = totalAmount.plus(price.times(it.orderInput.jumlah));
       }
 
@@ -96,7 +113,7 @@ export const buyerOrderService = {
       });
 
       for (const it of items) {
-        if (it.kind === 'produk') {
+        if (it.kind === "produk") {
           const product = it.detail;
           const price = new Prisma.Decimal(product.harga ?? 0);
           const subtotal = price.times(it.orderInput.jumlah);
@@ -143,20 +160,20 @@ export const buyerOrderService = {
 
       const itemSummary = items
         .map((i) =>
-          i.kind === 'produk'
-            ? `${i.detail.nama_produk || 'produk'} x${i.orderInput.jumlah}`
-            : `${i.detail.nama_layanan || 'layanan'} x${i.orderInput.jumlah}`,
+          i.kind === "produk"
+            ? `${i.detail.nama_produk || "produk"} x${i.orderInput.jumlah}`
+            : `${i.detail.nama_layanan || "layanan"} x${i.orderInput.jumlah}`,
         )
-        .join(', ');
+        .join(", ");
 
       await prisma.notifikasi.create({
         data: {
           mitra_id: storeId,
           isi_pesan: `Pesanan baru #${newOrder.pesanan_id} dari ${
-            newOrder.pembeli?.full_name || 'Pembeli'
-          }: ${itemSummary}${data.catatan ? `. Catatan: ${data.catatan}` : ''}`,
+            newOrder.pembeli?.full_name || "Pembeli"
+          }: ${itemSummary}${data.catatan ? `. Catatan: ${data.catatan}` : ""}`,
           waktu_kirim: new Date(),
-          tipe: 'new_order',
+          tipe: "new_order",
           status_dibaca: false,
         },
       });
@@ -173,33 +190,33 @@ export const buyerOrderService = {
     const [orders, totalCount] = await Promise.all([
       prisma.pesanan.findMany({
         where: {
-          user_id: userId
+          user_id: userId,
         },
         include: {
           penjual: {
             select: {
               mitra_id: true,
-              nama_toko: true
-            }
+              nama_toko: true,
+            },
           },
           detail_pesanan_produk: {
             include: {
-              produk: true
-            }
+              produk: true,
+            },
           },
-          pembayaran: true
+          pembayaran: true,
         },
         orderBy: {
-          waktu_pesan: 'desc'
+          waktu_pesan: "desc",
         },
         skip,
-        take: limit
+        take: limit,
       }),
       prisma.pesanan.count({
         where: {
-          user_id: userId
-        }
-      })
+          user_id: userId,
+        },
+      }),
     ]);
 
     return {
@@ -208,15 +225,15 @@ export const buyerOrderService = {
         total: totalCount,
         page,
         limit,
-        totalPages: Math.ceil(totalCount / limit)
-      }
+        totalPages: Math.ceil(totalCount / limit),
+      },
     };
   },
   async getOrderById(orderId: number, userId: number) {
     const order = await prisma.pesanan.findFirst({
       where: {
         pesanan_id: orderId,
-        user_id: userId
+        user_id: userId,
       },
       include: {
         penjual: {
@@ -224,17 +241,17 @@ export const buyerOrderService = {
             mitra_id: true,
             nama_toko: true,
             alamat_toko: true,
-            phone_number: true
-          }
+            phone_number: true,
+          },
         },
         detail_pesanan_produk: {
           include: {
-            produk: true
-          }
+            produk: true,
+          },
         },
         pembayaran: true,
-        ulasan: true
-      }
+        ulasan: true,
+      },
     });
 
     return order;
@@ -246,8 +263,8 @@ export const buyerOrderService = {
       where: {
         pesanan_id: orderId,
         user_id: userId,
-        status_pesanan: ORDER_STATUS.PENDING
-      }
+        status_pesanan: ORDER_STATUS.PENDING,
+      },
     });
 
     if (!order) {
@@ -255,42 +272,42 @@ export const buyerOrderService = {
     }
     const updatedOrder = await prisma.pesanan.update({
       where: {
-        pesanan_id: orderId
+        pesanan_id: orderId,
       },
       data: {
-        status_pesanan: ORDER_STATUS.CANCELED
+        status_pesanan: ORDER_STATUS.CANCELED,
       },
       include: {
         penjual: {
           select: {
             mitra_id: true,
-            nama_toko: true
-          }
-        }
-      }
+            nama_toko: true,
+          },
+        },
+      },
     });
 
     const orderDetails = await prisma.detail_pesanan_produk.findMany({
       where: {
-        pesanan_id: orderId
+        pesanan_id: orderId,
       },
       include: {
-        produk: true
-      }
+        produk: true,
+      },
     });
 
     for (const item of orderDetails) {
       if (item.produk && item.produk.stok_produk !== null && item.jumlah_item) {
         await prisma.produk.update({
           where: { produk_id: item.produk.produk_id },
-          data: { stok_produk: item.produk.stok_produk + item.jumlah_item }
+          data: { stok_produk: item.produk.stok_produk + item.jumlah_item },
         });
       }
     }
 
     await prisma.pembayaran.updateMany({
       where: { pesanan_id: orderId },
-      data: { status_pembayaran: PAYMENT_STATUS.CANCELED }
+      data: { status_pembayaran: PAYMENT_STATUS.CANCELED },
     });
 
     if (updatedOrder.mitra_id) {
@@ -299,9 +316,9 @@ export const buyerOrderService = {
           mitra_id: updatedOrder.mitra_id,
           isi_pesan: `Pesanan #${orderId} dibatalkan oleh pembeli. Alasan: ${reason}`,
           waktu_kirim: new Date(),
-          tipe: 'order_canceled',
-          status_dibaca: false
-        }
+          tipe: "order_canceled",
+          status_dibaca: false,
+        },
       });
     }
 
@@ -312,8 +329,8 @@ export const buyerOrderService = {
       where: {
         pesanan_id: orderId,
         user_id: userId,
-        status_pesanan: ORDER_STATUS.DELIVERED
-      }
+        status_pesanan: ORDER_STATUS.DELIVERED,
+      },
     });
 
     if (!order) {
@@ -371,7 +388,7 @@ export const buyerOrderService = {
             data: {
               mitra_id: updatedOrder.mitra_id,
               saldo: totalHarga,
-              status_dompet: 'active',
+              status_dompet: "active",
               tanggal_dibuat: now,
               tanggal_diubah: now,
             },
@@ -382,7 +399,7 @@ export const buyerOrderService = {
         await tx.riwayat_dompet.create({
           data: {
             id_dompet: walletId,
-            jenis_transaksi: 'credit',
+            jenis_transaksi: "credit",
             jumlah_diterima: totalHarga,
             deskripsi_transaksi: `Pembayaran pesanan #${orderId}`,
             waktu_transaksi: now,
@@ -394,7 +411,7 @@ export const buyerOrderService = {
             mitra_id: updatedOrder.mitra_id,
             isi_pesan: `Pesanan #${orderId} telah diterima oleh pembeli. Saldo dompet bertambah ${totalHarga.toString()}.`,
             waktu_kirim: now,
-            tipe: 'order_completed',
+            tipe: "order_completed",
             status_dibaca: false,
           },
         });
@@ -406,41 +423,46 @@ export const buyerOrderService = {
     return result;
   },
 
-  async getOrdersByStatus(userId: number, status: string, page: number = 1, limit: number = 10) {
+  async getOrdersByStatus(
+    userId: number,
+    status: string,
+    page: number = 1,
+    limit: number = 10,
+  ) {
     const skip = (page - 1) * limit;
 
     const [orders, totalCount] = await Promise.all([
       prisma.pesanan.findMany({
         where: {
           user_id: userId,
-          status_pesanan: status
+          status_pesanan: status,
         },
         include: {
           penjual: {
             select: {
               mitra_id: true,
-              nama_toko: true
-            }
+              nama_toko: true,
+            },
           },
           detail_pesanan_produk: {
             include: {
-              produk: true
-            }
+              produk: true,
+            },
           },
-          pembayaran: true
+          pembayaran: true,
         },
         orderBy: {
-          waktu_pesan: 'desc'
+          waktu_pesan: "desc",
         },
         skip,
-        take: limit
+        take: limit,
       }),
       prisma.pesanan.count({
         where: {
           user_id: userId,
-          status_pesanan: status
-        }
-      })
+          status_pesanan: status,
+        },
+      }),
     ]);
 
     return {
@@ -450,8 +472,8 @@ export const buyerOrderService = {
         total: totalCount,
         page,
         limit,
-        totalPages: Math.ceil(totalCount / limit)
-      }
+        totalPages: Math.ceil(totalCount / limit),
+      },
     };
   },
 
@@ -459,7 +481,7 @@ export const buyerOrderService = {
     const order = await prisma.pesanan.findFirst({
       where: {
         pesanan_id: orderId,
-        user_id: userId
+        user_id: userId,
       },
       select: {
         pesanan_id: true,
@@ -471,20 +493,25 @@ export const buyerOrderService = {
           select: {
             nama_toko: true,
             alamat_toko: true,
-            phone_number: true
-          }
-        }
-      }
+            phone_number: true,
+          },
+        },
+      },
     });
 
     if (!order) {
       return null;
     }
 
-    const statusHistory: Array<{ status: string; label: string; time: Date | null; completed: boolean }> = [
+    const statusHistory: Array<{
+      status: string;
+      label: string;
+      time: Date | null;
+      completed: boolean;
+    }> = [
       {
         status: ORDER_STATUS.PENDING,
-        label: 'Pesanan Dibuat',
+        label: "Pesanan Dibuat",
         time: order.waktu_pesan,
         completed: true,
       },
@@ -492,49 +519,66 @@ export const buyerOrderService = {
 
     const currentStatus = order.status_pesanan;
 
-    if ([ORDER_STATUS.ACCEPTED, ORDER_STATUS.PROCESSING, ORDER_STATUS.DELIVERED, ORDER_STATUS.COMPLETED].includes(currentStatus as never)) {
+    if (
+      [
+        ORDER_STATUS.ACCEPTED,
+        ORDER_STATUS.PROCESSING,
+        ORDER_STATUS.DELIVERED,
+        ORDER_STATUS.COMPLETED,
+      ].includes(currentStatus as never)
+    ) {
       statusHistory.push({
         status: ORDER_STATUS.ACCEPTED,
-        label: 'Pesanan Diterima Penjual',
+        label: "Pesanan Diterima Penjual",
         time: null,
         completed: true,
       });
     } else {
       statusHistory.push({
         status: ORDER_STATUS.ACCEPTED,
-        label: 'Pesanan Diterima Penjual',
+        label: "Pesanan Diterima Penjual",
         time: null,
         completed: false,
       });
     }
 
-    if ([ORDER_STATUS.PROCESSING, ORDER_STATUS.DELIVERED, ORDER_STATUS.COMPLETED].includes(currentStatus as never)) {
+    if (
+      [
+        ORDER_STATUS.PROCESSING,
+        ORDER_STATUS.DELIVERED,
+        ORDER_STATUS.COMPLETED,
+      ].includes(currentStatus as never)
+    ) {
       statusHistory.push({
         status: ORDER_STATUS.PROCESSING,
-        label: 'Pesanan Sedang Diproses',
+        label: "Pesanan Sedang Diproses",
         time: null,
         completed: true,
       });
     } else {
       statusHistory.push({
         status: ORDER_STATUS.PROCESSING,
-        label: 'Pesanan Sedang Diproses',
+        label: "Pesanan Sedang Diproses",
         time: null,
         completed: false,
       });
     }
 
-    if ([ORDER_STATUS.DELIVERED, ORDER_STATUS.COMPLETED].includes(currentStatus as never)) {
+    if (
+      [ORDER_STATUS.DELIVERED, ORDER_STATUS.COMPLETED].includes(
+        currentStatus as never,
+      )
+    ) {
       statusHistory.push({
         status: ORDER_STATUS.DELIVERED,
-        label: 'Pesanan Dikirim',
+        label: "Pesanan Dikirim",
         time: order.waktu_dikirim,
         completed: true,
       });
     } else {
       statusHistory.push({
         status: ORDER_STATUS.DELIVERED,
-        label: 'Pesanan Dikirim',
+        label: "Pesanan Dikirim",
         time: null,
         completed: false,
       });
@@ -543,14 +587,14 @@ export const buyerOrderService = {
     if (currentStatus === ORDER_STATUS.COMPLETED) {
       statusHistory.push({
         status: ORDER_STATUS.COMPLETED,
-        label: 'Pesanan Selesai',
+        label: "Pesanan Selesai",
         time: order.waktu_diterima,
         completed: true,
       });
     } else {
       statusHistory.push({
         status: ORDER_STATUS.COMPLETED,
-        label: 'Pesanan Selesai',
+        label: "Pesanan Selesai",
         time: null,
         completed: false,
       });
@@ -558,19 +602,19 @@ export const buyerOrderService = {
 
     return {
       order,
-      statusHistory
+      statusHistory,
     };
   },
 
   async getOrderSummary(userId: number) {
     const ordersByStatus = await prisma.pesanan.groupBy({
-      by: ['status_pesanan'],
+      by: ["status_pesanan"],
       where: {
-        user_id: userId
+        user_id: userId,
       },
       _count: {
-        pesanan_id: true
-      }
+        pesanan_id: true,
+      },
     });
 
     const orderCounts = {
@@ -580,12 +624,13 @@ export const buyerOrderService = {
       delivered: 0,
       completed: 0,
       rejected: 0,
-      canceled: 0
+      canceled: 0,
     };
 
-    ordersByStatus.forEach(item => {
+    ordersByStatus.forEach((item) => {
       if (item.status_pesanan) {
-        orderCounts[item.status_pesanan as keyof typeof orderCounts] = item._count.pesanan_id;
+        orderCounts[item.status_pesanan as keyof typeof orderCounts] =
+          item._count.pesanan_id;
       }
     });
 
@@ -593,29 +638,29 @@ export const buyerOrderService = {
       where: {
         user_id: userId,
         status_pesanan: {
-          in: [ORDER_STATUS.COMPLETED, ORDER_STATUS.DELIVERED]
-        }
+          in: [ORDER_STATUS.COMPLETED, ORDER_STATUS.DELIVERED],
+        },
       },
       _sum: {
-        total_harga: true
-      }
+        total_harga: true,
+      },
     });
 
     const recentOrders = await prisma.pesanan.findMany({
       where: {
-        user_id: userId
+        user_id: userId,
       },
       include: {
         penjual: {
           select: {
-            nama_toko: true
-          }
-        }
+            nama_toko: true,
+          },
+        },
       },
       orderBy: {
-        waktu_pesan: 'desc'
+        waktu_pesan: "desc",
       },
-      take: 5
+      take: 5,
     });
 
     const sixMonthsAgo = new Date();
@@ -642,17 +687,21 @@ export const buyerOrderService = {
       orderCounts,
       totalOrders: Object.values(orderCounts).reduce((a, b) => a + b, 0),
       recentOrders,
-      monthlySpending
+      monthlySpending,
     };
   },
 
-  async reviewOrder(orderId: number, userId: number, data: { rating: number, komentar?: string }) {
+  async reviewOrder(
+    orderId: number,
+    userId: number,
+    data: { rating: number; komentar?: string },
+  ) {
     const order = await prisma.pesanan.findFirst({
       where: {
         pesanan_id: orderId,
         user_id: userId,
-        status_pesanan: ORDER_STATUS.COMPLETED
-      }
+        status_pesanan: ORDER_STATUS.COMPLETED,
+      },
     });
 
     if (!order) {
@@ -661,20 +710,20 @@ export const buyerOrderService = {
 
     const existingReview = await prisma.ulasan.findFirst({
       where: {
-        id_pesanan: orderId
-      }
+        id_pesanan: orderId,
+      },
     });
 
     if (existingReview) {
       const updatedReview = await prisma.ulasan.update({
         where: {
-          id_ulasan: existingReview.id_ulasan
+          id_ulasan: existingReview.id_ulasan,
         },
         data: {
           rating: data.rating,
           komentar: data.komentar,
-          waktu_ulasan: new Date()
-        }
+          waktu_ulasan: new Date(),
+        },
       });
       return updatedReview;
     } else {
@@ -683,8 +732,8 @@ export const buyerOrderService = {
           id_pesanan: orderId,
           rating: data.rating,
           komentar: data.komentar,
-          waktu_ulasan: new Date()
-        }
+          waktu_ulasan: new Date(),
+        },
       });
 
       if (order.mitra_id) {
@@ -693,13 +742,13 @@ export const buyerOrderService = {
             mitra_id: order.mitra_id,
             isi_pesan: `Pesanan #${orderId} mendapatkan ulasan baru dengan rating ${data.rating}/5.`,
             waktu_kirim: new Date(),
-            tipe: 'new_review',
-            status_dibaca: false
-          }
+            tipe: "new_review",
+            status_dibaca: false,
+          },
         });
       }
 
       return newReview;
     }
-  }
+  },
 };
