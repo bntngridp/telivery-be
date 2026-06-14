@@ -59,34 +59,22 @@ export const cartService = {
     async addItem(userId: number, data: AddCartItemDto) {
         if (data.produkId) {
             await validateProdukForCart(data.produkId);
-            const existing = await prisma.cart.findFirst({
-                where: { user_id: userId, produk_id: data.produkId },
+            const result = await prisma.cart.upsert({
+                where: { user_id_produk_id: { user_id: userId, produk_id: data.produkId } },
+                update: { jumlah: { increment: data.jumlah } },
+                create: { user_id: userId, produk_id: data.produkId, jumlah: data.jumlah },
             });
-            if (existing) {
-                return prisma.cart.update({
-                    where: { cart_id: existing.cart_id },
-                    data: { jumlah: existing.jumlah + data.jumlah },
-                });
-            }
-            return prisma.cart.create({
-                data: { user_id: userId, produk_id: data.produkId, jumlah: data.jumlah },
-            });
+            return result;
         }
 
         if (data.layananId) {
             await validateLayananForCart(data.layananId);
-            const existing = await prisma.cart.findFirst({
-                where: { user_id: userId, layanan_id: data.layananId },
+            const result = await prisma.cart.upsert({
+                where: { user_id_layanan_id: { user_id: userId, layanan_id: data.layananId } },
+                update: { jumlah: { increment: data.jumlah } },
+                create: { user_id: userId, layanan_id: data.layananId, jumlah: data.jumlah },
             });
-            if (existing) {
-                return prisma.cart.update({
-                    where: { cart_id: existing.cart_id },
-                    data: { jumlah: existing.jumlah + data.jumlah },
-                });
-            }
-            return prisma.cart.create({
-                data: { user_id: userId, layanan_id: data.layananId, jumlah: data.jumlah },
-            });
+            return result;
         }
 
         throw new BadRequestError('produkId atau layananId harus diisi');

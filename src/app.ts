@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const globalWriteLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: process.env.NODE_ENV === 'test' ? 1000 : 100,
     standardHeaders: true,
     legacyHeaders: false,
     message: {
@@ -80,17 +80,23 @@ app.get('/health', async (_req, res) => {
     });
 });
 
-app.use(globalWriteLimiter);
+app.use((req, res, next) => {
+    if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method)) {
+        globalWriteLimiter(req, res, next);
+    } else {
+        next();
+    }
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/product', productRoutes);
 app.use('/api/buyer/products', buyerProductRoutes);
 app.use('/api/buyer/stores', buyerStoreRoutes);
 app.use('/api/buyer/orders', buyerOrderRoutes);
-app.use('/api/buyer/profile', buyerProfileRoutes);
-app.use('/api/buyer/notifications', notifBuyerRouter);
 app.use('/api/buyer/cart', cartRoutes);
 app.use('/api/buyer/checkout', checkoutRoutes);
+app.use('/api/buyer/notifications', notifBuyerRouter);
+app.use('/api/buyer', buyerProfileRoutes);
 app.use('/api/seller/orders', orderSellerRoutes);
 app.use('/api/seller', partnerRoutes);
 app.use('/api/seller/notifications', notifSellerRouter);
