@@ -24,7 +24,7 @@ function flattenZodErrors(err: ZodError): { errors: Record<string, string[]>; fi
     return { errors, fieldList };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line no-unused-vars
 export function errorHandler(
     err: unknown,
     _req: Request,
