@@ -48,7 +48,7 @@ jobs:
         env:
           DATABASE_URL: mysql://root:root@127.0.0.1:3306/telivery
           JWT_SECRET: ci_jwt_secret
-          ADMIN_EMAIL: admin@test.com
+          ADMIN_EMAIL: bntngrid@gmail.com
           ADMIN_PASSWORD: admin123
 
       - name: Check Formatting
@@ -56,7 +56,7 @@ jobs:
         env:
           DATABASE_URL: mysql://root:root@127.0.0.1:3306/telivery
           JWT_SECRET: ci_jwt_secret
-          ADMIN_EMAIL: admin@test.com
+          ADMIN_EMAIL: bntngrid@gmail.com
           ADMIN_PASSWORD: admin123
 
       - name: TypeScript Build
@@ -64,7 +64,7 @@ jobs:
         env:
           DATABASE_URL: mysql://root:root@127.0.0.1:3306/telivery
           JWT_SECRET: ci_jwt_secret
-          ADMIN_EMAIL: admin@test.com
+          ADMIN_EMAIL: bntngrid@gmail.com
           ADMIN_PASSWORD: admin123
 
       - name: Run Tests
@@ -72,6 +72,6 @@ jobs:
         env:
           DATABASE_URL: mysql://root:root@127.0.0.1:3306/telivery
           JWT_SECRET: ci_jwt_secret
-          ADMIN_EMAIL: admin@test.com
+          ADMIN_EMAIL: bntngrid@gmail.com
           ADMIN_PASSWORD: admin123
           NODE_ENV: test
