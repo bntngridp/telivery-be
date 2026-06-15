@@ -7,23 +7,25 @@ on:
       - "**.md"
       - ".kilo/**"
       - "docs/**"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Manual version override (e.g. 1.2.3)"
+        required: false
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  test:
-    uses: ./.github/workflows/ci.yml
-
   release:
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -31,14 +33,35 @@ jobs:
           node-version: 20
           cache: "npm"
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: mysql://root:root@127.0.0.1:3306/telivery
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: mysql://root:root@127.0.0.1:3306/telivery
+          JWT_SECRET: ci_jwt_secret
+          ADMIN_EMAIL: bntngrid@gmail.com
+          ADMIN_PASSWORD: admin123
+
       - name: Detect version bump
         id: bump
         run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "level=manual" >> $GITHUB_OUTPUT
+            echo "manual_version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "Previous tag: $PREV_TAG"
+          echo "Previous tag: $PREV_TAG" >> $GITHUB_STEP_DEBUG
           COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s")
-          echo "Commits since last tag:"
-          echo "$COMMITS"
+          echo "Commits since last tag:" >> $GITHUB_STEP_DEBUG
+          echo "$COMMITS" >> $GITHUB_STEP_DEBUG
           if echo "$COMMITS" | grep -qiE "BREAKING CHANGE|^[a-z]+(\([^)]+\))?!:"; then
             echo "level=major" >> $GITHUB_OUTPUT
           elif echo "$COMMITS" | grep -qiE "^feat(\([^)]+\))?:"; then
@@ -51,8 +74,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm version ${{ steps.bump.outputs.level }} --no-git-tag-version
+          if [ "${{ steps.bump.outputs.level }}" = "manual" ]; then
+            NEW_VERSION="${{ steps.bump.outputs.manual_version }}"
+            npm version "${NEW_VERSION}" --no-git-tag-version
+          else
+            npm version ${{ steps.bump.outputs.level }} --no-git-tag-version
+          fi
           NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json package-lock.json
@@ -63,20 +92,23 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^v${NEW_VERSION}$" | head -1)
           if [ -z "$PREV_TAG" ]; then
             RANGE="HEAD"
           else
             RANGE="${PREV_TAG}..HEAD"
           fi
           CHANGELOG=$(git log ${RANGE} --pretty=format:"- %s (%h)" --no-merges | head -50)
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "changelog<<EOF"
+            echo "$CHANGELOG"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ env.NEW_VERSION }}
           generate_release_notes: true
           body: |
             ## Changes
@@ -90,6 +122,6 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ github.ref_name }}
+          name: dist-main
           path: dist/
-          if-no-files-found: ignore
+          if-no-files-found: warn
