@@ -1,6 +1,6 @@
 {
   "name": "telivery-be",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cheva-Telivery backend API for campus delivery marketplace",
   "main": "dist/server.js",
   "scripts": {
