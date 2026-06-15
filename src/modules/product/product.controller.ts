@@ -37,6 +37,26 @@ function resolveCategoryDb(value: string): string {
   return CATEGORY_URL_TO_DB[value.toLowerCase()] ?? value.toUpperCase();
 }
 
+/**
+ * @openapi
+ * /api/product/seller/create:
+ *   post:
+ *     tags: [Product]
+ *     summary: Create produk baru (seller, multipart)
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nama_produk: { type: string }
+ *               harga: { type: number }
+ *               stok_produk: { type: integer }
+ *               kategori: { type: string, example: MAKANAN_MINUMAN }
+ *               gambar: { type: string, format: binary }
+ */
 export const createProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const sellerId = requireSeller(req);

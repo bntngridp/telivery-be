@@ -1,10 +1,15 @@
 import multer, { FileFilterCallback } from "multer";
-import { Request } from "express";
+import { Request, Response, NextFunction } from "express";
 import path from "path";
 import fs from "fs";
 import { UPLOAD_LIMITS, UPLOAD_PATHS } from "../config/constants";
 import { BadRequestError } from "../utils/errors";
 import { sanitizeFileName } from "../utils/helpers";
+import {
+  optimizeImage,
+  isImageMime,
+  ImageProfile,
+} from "../config/imageOptimization";
 
 const ALLOWED_MIME = new Set([
   "image/jpeg",
@@ -49,9 +54,11 @@ const storage = multer.diskStorage({
     cb(null, folder);
   },
   filename: (_req: Request, file: Express.Multer.File, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const base = sanitizeFileName(path.basename(file.originalname, ext));
+    const base = sanitizeFileName(
+      path.basename(file.originalname, path.extname(file.originalname)),
+    );
     const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const ext = file.mimetype === "application/pdf" ? ".pdf" : ".tmp";
     cb(null, `${base}-${unique}${ext}`);
   },
 });
@@ -80,6 +87,41 @@ function receiptFilter(
   cb(new BadRequestError(`Unsupported file type: ${file.mimetype}`));
 }
 
+function buildProcessMiddleware(profile: ImageProfile) {
+  return async (req: Request, _res: Response, next: NextFunction) => {
+    try {
+      const files: Express.Multer.File[] = [];
+      if (req.file) files.push(req.file);
+      if (req.files) {
+        for (const arr of Object.values(
+          req.files as Record<string, Express.Multer.File[]>,
+        )) {
+          if (Array.isArray(arr)) files.push(...arr);
+        }
+      }
+      for (const f of files) {
+        if (f.mimetype === "application/pdf") {
+          const finalPath = f.path.replace(/\.tmp$/, ".pdf");
+          if (finalPath !== f.path) {
+            await fs.promises.rename(f.path, finalPath).catch(() => {});
+            f.path = finalPath;
+            f.filename = path.basename(finalPath);
+          }
+          continue;
+        }
+        if (!isImageMime(f.mimetype)) continue;
+        const { outputPath } = await optimizeImage(f.path, profile);
+        f.path = outputPath;
+        f.filename = path.basename(outputPath);
+        f.mimetype = "image/webp";
+      }
+      next();
+    } catch (e) {
+      next(e);
+    }
+  };
+}
+
 export const uploadSellerDocs = multer({
   storage,
   fileFilter: imageFilter,
@@ -105,3 +147,8 @@ export const uploadSellerDocsFields = uploadSellerDocs.fields([
 ]);
 export const uploadPaymentReceiptSingle =
   uploadPaymentReceipt.single("receipt");
+
+export const processKtpImage = buildProcessMiddleware("ktp");
+export const processOwnerFaceImage = buildProcessMiddleware("ownerFace");
+export const processProductImage = buildProcessMiddleware("product");
+export const processReceiptImage = buildProcessMiddleware("receipt");

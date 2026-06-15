@@ -10,6 +10,7 @@ import {
 import { asyncHandler } from "../../utils/asyncHandler";
 import { success, paginated } from "../../utils/response";
 import { NotFoundError, UnauthorizedError } from "../../utils/errors";
+import { sendOrderEmail } from "../../services/notification/email.sender";
 
 function requireSellerId(req: Request): number {
   const sellerId = req.user?.sellerId;
@@ -77,6 +78,13 @@ export const orderController = {
       throw new NotFoundError(
         "Pesanan tidak ditemukan atau tidak dapat diubah statusnya",
       );
+    if (updatedOrder.user_id) {
+      sendOrderEmail({
+        orderId: updatedOrder.pesanan_id,
+        buyerId: updatedOrder.user_id,
+        template: "orderAccepted",
+      }).catch((err) => console.error("[email] orderAccepted gagal:", err));
+    }
     return success(res, "Pesanan berhasil diterima", updatedOrder);
   }),
 
@@ -93,6 +101,14 @@ export const orderController = {
       throw new NotFoundError(
         "Pesanan tidak ditemukan atau tidak dapat diubah statusnya",
       );
+    if (updatedOrder.user_id) {
+      sendOrderEmail({
+        orderId: updatedOrder.pesanan_id,
+        buyerId: updatedOrder.user_id,
+        template: "orderCanceled",
+        reason: body.reason,
+      }).catch((err) => console.error("[email] orderCanceled gagal:", err));
+    }
     return success(res, "Pesanan berhasil ditolak", updatedOrder);
   }),
 
@@ -127,6 +143,13 @@ export const orderController = {
       throw new NotFoundError(
         "Pesanan tidak ditemukan atau tidak dapat diubah statusnya",
       );
+    if (updatedOrder.user_id) {
+      sendOrderEmail({
+        orderId: updatedOrder.pesanan_id,
+        buyerId: updatedOrder.user_id,
+        template: "orderDelivered",
+      }).catch((err) => console.error("[email] orderDelivered gagal:", err));
+    }
     return success(
       res,
       "Status pesanan berhasil diubah menjadi dikirim",

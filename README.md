@@ -247,10 +247,16 @@ DELETE /api/buyer/cart
 # Checkout — JWT
 POST   /api/buyer/checkout             # atomic: cart → orders
 
-# Payment
+# Payment — manual upload flow
 POST   /api/payments/buyer/pesanan/:pesananId/receipt  # JWT, multipart
 PATCH  /api/payments/seller/pembayaran/:pembayaranId/confirm  # JWT
 PATCH  /api/payments/seller/pembayaran/:pembayaranId/reject   # JWT
+
+# Payment — Midtrans Snap (in-app)
+POST   /api/payments/buyer/pesanan/:pesananId/snap-token  # JWT → returns snapToken + redirectUrl
+GET    /api/payments/buyer/pesanan/:pesananId/status      # JWT → poll after Snap close
+GET    /api/payments/midtrans/config                      # public → client_key for Snap JS
+POST   /api/payments/midtrans/webhook                     # Midtrans → no JWT, raw body, SHA-512 verified
 
 # Notification (Buyer) — JWT
 GET    /api/buyer/notifications
@@ -296,7 +302,22 @@ ADMIN_PASSWORD=admin123
 # OTP_GATEWAY_URL=https://api.fonnte.com/send
 # OTP_GATEWAY_TOKEN=your_fonnte_token
 # OTP_DRY_RUN=false
+
+# Midtrans Snap (sandbox). Get your own from https://dashboard.sandbox.midtrans.com/
+MIDTRANS_SERVER_KEY=SB-Mid-server-DUMMY
+MIDTRANS_CLIENT_KEY=SB-Mid-client-DUMMY
+MIDTRANS_IS_PRODUCTION=false
+# Public URL Midtrans POSTs to. Use ngrok for local: `ngrok http 3000`
+MIDTRANS_NOTIFICATION_URL=https://YOUR-NGROK-ID.ngrok-free.app/api/payments/midtrans/webhook
 ```
+
+#### Midtrans integration flow
+
+1. Buyer creates pesanan with `metode_pembayaran: "midtrans"` (checkout or order endpoint).
+2. Client calls `POST /api/payments/buyer/pesanan/:id/snap-token` → gets `{ snapToken, redirectUrl }`.
+3. Client opens Snap popup with the `snapToken` (using `clientKey` from `GET /api/payments/midtrans/config`).
+4. After payment, Midtrans POSTs to `MIDTRANS_NOTIFICATION_URL` (the webhook endpoint). Backend verifies the SHA-512 signature, updates `pembayaran.status_pembayaran = paid`, and notifies buyer + seller.
+5. Client polls `GET /api/payments/buyer/pesanan/:id/status` after Snap closes to know the final state.
 
 ### 4. Setup Database
 

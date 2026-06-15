@@ -88,20 +88,24 @@ export const buyerOrderService = {
       const storeId = Number(storeIdStr);
       const items = itemsByStore[storeId];
 
-      let totalAmount = new Prisma.Decimal(0);
+      let subtotal = new Prisma.Decimal(0);
       for (const it of items) {
         const price = it.detail.harga
           ? new Prisma.Decimal(it.detail.harga)
           : new Prisma.Decimal(0);
-        totalAmount = totalAmount.plus(price.times(it.orderInput.jumlah));
+        subtotal = subtotal.plus(price.times(it.orderInput.jumlah));
       }
+      const ongkir = new Prisma.Decimal(data.ongkir ?? 0);
+      const totalAmount = subtotal.plus(ongkir);
 
       const newOrder = await prisma.pesanan.create({
         data: {
           user_id: userId,
           mitra_id: storeId,
           total_harga: totalAmount,
+          ongkir: ongkir,
           alamat_pengiriman: data.alamat_pengiriman,
+          alamat_id: data.alamat_id ?? null,
           status_pesanan: ORDER_STATUS.PENDING,
           metode_pembayaran: data.metode_pembayaran,
           waktu_pesan: new Date(),
@@ -357,18 +361,47 @@ export const buyerOrderService = {
         },
       });
 
-      await tx.pembayaran.updateMany({
-        where: {
-          pesanan_id: orderId,
-          status_pembayaran: PAYMENT_STATUS.PENDING,
-        },
-        data: {
-          status_pembayaran: PAYMENT_STATUS.PAID,
-          waktu_pembayaran: now,
-        },
+      // Fetch current payment state. For Midtrans payments, the webhook has
+      // already set status_pembayaran = paid and credited the wallet. We
+      // skip the auto-PAID transition + credit for Midtrans to avoid
+      // double-credit. For non-Midtrans flows (cash/transfer/e-wallet with
+      // manual upload), we still mark paid and credit here.
+      const pembayaranList = await tx.pembayaran.findMany({
+        where: { pesanan_id: orderId },
+        take: 1,
       });
+      const existingPayment = pembayaranList[0];
+      const isMidtransFlow = existingPayment?.metode_pembayaran === "midtrans";
+      const alreadyPaid =
+        existingPayment?.status_pembayaran === PAYMENT_STATUS.PAID;
+
+      if (!isMidtransFlow && !alreadyPaid) {
+        await tx.pembayaran.updateMany({
+          where: {
+            pesanan_id: orderId,
+            status_pembayaran: PAYMENT_STATUS.PENDING,
+          },
+          data: {
+            status_pembayaran: PAYMENT_STATUS.PAID,
+            waktu_pembayaran: now,
+          },
+        });
+      }
 
       if (updatedOrder.mitra_id && totalHarga.greaterThan(0)) {
+        // For Midtrans, only credit if the wallet hasn't been credited yet
+        // (idempotency check via existing riwayat_dompet record for this order).
+        if (isMidtransFlow) {
+          const alreadyCredited = await tx.riwayat_dompet.findFirst({
+            where: {
+              deskripsi_transaksi: `Pembayaran pesanan #${orderId}`,
+            },
+          });
+          if (alreadyCredited) {
+            return updatedOrder; // skip credit
+          }
+        }
+
         const existingWallet = await tx.dompet_mitra.findFirst({
           where: { mitra_id: updatedOrder.mitra_id },
         });

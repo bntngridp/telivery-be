@@ -31,7 +31,6 @@ export async function sendOtp(
 
   if (env.OTP_DRY_RUN || !env.OTP_GATEWAY_URL) {
     if (isDevelopment) {
-      // eslint-disable-next-line no-console
       console.log(`[OTP-DRY-RUN] -> ${target} : ${message}`);
     }
     return { delivered: true, channel: "log" };
@@ -74,7 +73,7 @@ export async function sendOtp(
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    // eslint-disable-next-line no-console
+
     console.error("[OTP-SEND-FAILED]", message);
     return { delivered: false, channel: "fonnte", error: message };
   }

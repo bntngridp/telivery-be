@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Cheva-Telivery API",
-    "description": "Backend API untuk marketplace delivery kampus.\n\n**Base URL**: `http://localhost:3000`\n\n**Auth Flow**:\n1. Login di salah satu endpoint di section 02/03/04 (token akan otomatis tersimpan ke variable `{{buyerToken}}` / `{{sellerToken}}` / `{{adminToken}}`).\n2. Token digunakan di header `Authorization: Bearer <token>` untuk endpoint yang butuh auth.\n3. Variable `{{baseUrl}}` default-nya `http://localhost:3000` — bisa diubah via Postman environment.\n\n**Roles**:\n- `pembeli` (buyer) — token dari `/api/auth/buyer/verify-otp`\n- `penjual` (seller) — token dari `/api/auth/seller/login`\n- `admin` — token dari `/api/auth/admin/login`\n\n**Data Dummy Siap Pakai** (di-seed via `npx ts-node scripts/seed-e2e.ts`):\n\n| Role | Email | Phone | Password/OTP |\n|---|---|---|---|\n| Admin | bntngrid@gmail.com | - | admin123 |\n| Buyer A (Budi Santoso) | budi@test.com | 081111111111 | - |\n| Buyer B (Siti Aminah) | siti@test.com | 082222222222 | - |\n| Seller A (Toko A) | a@test.com | 083333333333 | password123 |\n| Seller B (Toko B - pending) | b@test.com | 084444444444 | password123 |\n| Seller C (Toko C) | c@test.com | 085555555555 | password123 |\n\n**Resources**:\n- Toko A: 2 produk (Nasi Goreng, Es Teh), 1 layanan (Paket Nasi Box), approved+OPEN\n- Toko B: pending+CLOSED (tidak muncul di buyer katalog)\n- Toko C: 1 produk (Galon Aqua), approved+OPEN",
+    "description": "Backend API untuk marketplace delivery kampus.\n\n**Base URL**: `{{baseUrl}}` (default: `http://localhost:3000`)\n\n**Cara Pakai (Cepat — Token Auto-Saved)**:\n1. Buka `00. Setup` → `Seed Dummy Data` (jalankan `npx ts-node scripts/seed-e2e.ts` di terminal **sekali** — output print ID + token siap pakai).\n2. Login di `00. Setup` salah satu request bertanda **\"Login + Auto-Save\"**:\n   - **Buyer A Login (email)** — email/password → token disimpan ke `{{buyerToken}}`\n   - **Buyer A Login (OTP)** — request OTP, auto-verify (DRY_RUN), token disimpan\n   - **Seller A Login (a@test.com / password123)** → `{{sellerToken}}`\n   - **Admin Login** → `{{adminToken}}`\n3. Request lain (cart, order, dll) sudah otomatis pakai token via Postman **Auth** header.\n4. Resource IDs (`produkId`, `pesananId`, `alamatId`, dll) auto-update dari response test scripts.\n\n**Data Dummy (seed-e2e.ts)**:\n\n| Role | Email | Phone | Password/OTP | Token var |\n|---|---|---|---|---|\n| Admin | bntngrid@gmail.com | - | admin123 | `{{adminToken}}` |\n| Buyer A (Budi) | budi@test.com | 081111111111 | buyer1234 | `{{buyerToken}}` |\n| Buyer B (Siti) | siti@test.com | 082222222222 | buyer1234 | - |\n| Seller A (Toko A approved+OPEN) | a@test.com | 083333333333 | password123 | `{{sellerToken}}` |\n| Seller B (Toko B pending) | b@test.com | 084444444444 | password123 | - |\n| Seller C (Toko C approved+OPEN) | c@test.com | 085555555555 | password123 | - |\n\n**Endpoints**:\n- Swagger UI: `{{baseUrl}}/api/docs`\n- OpenAPI JSON: `{{baseUrl}}/api/docs.json`\n\n**Modul yang Tersedia**:\n- 02/03/04 Auth (Buyer, Seller, Admin) — incl. Refresh Token & Email Login\n- 06 Buyer Profile, 07/08 Product (Seller/Buyer)\n- 09 Store (Buyer), 10 Partner\n- 11/12 Order (Buyer/Seller)\n- 13/14 Service (Seller/Buyer)\n- 15 Cart, 16 Checkout (dengan ongkir + alamat_id)\n- 17 Payment (manual + Midtrans Snap)\n- 18/19 Notification (Buyer/Seller)\n- **20 Alamat (Multi-Address)** — BARU\n- 21 Cross-Module Examples",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -40,37 +40,37 @@
     },
     {
       "key": "buyerId",
-      "value": "3",
+      "value": "2",
       "type": "string",
       "description": "ID buyer Budi (otomatis ter-update setelah login)"
     },
     {
       "key": "sellerId",
-      "value": "4",
+      "value": "1",
       "type": "string",
       "description": "ID Toko A (otomatis ter-update setelah login)"
     },
     {
       "key": "produkId",
-      "value": "4",
+      "value": "1",
       "type": "string",
       "description": "Nasi Goreng @15000 (Toko A) - ter-update setelah create"
     },
     {
       "key": "produkIdB",
-      "value": "5",
+      "value": "2",
       "type": "string",
       "description": "Es Teh @5000 (Toko A)"
     },
     {
       "key": "produkIdC",
-      "value": "6",
+      "value": "3",
       "type": "string",
       "description": "Galon Aqua @20000 (Toko C)"
     },
     {
       "key": "layananId",
-      "value": "2",
+      "value": "1",
       "type": "string",
       "description": "Paket Nasi Box @25000 (Toko A)"
     },
@@ -88,19 +88,19 @@
     },
     {
       "key": "storeId",
-      "value": "4",
+      "value": "1",
       "type": "string",
       "description": "Toko A ID (approved+OPEN)"
     },
     {
       "key": "storeIdB",
-      "value": "5",
+      "value": "2",
       "type": "string",
       "description": "Toko B ID (pending+CLOSED, hidden from buyer)"
     },
     {
       "key": "storeIdC",
-      "value": "6",
+      "value": "3",
       "type": "string",
       "description": "Toko C ID (approved+OPEN)"
     },
@@ -115,6 +115,31 @@
       "value": "1",
       "type": "string",
       "description": "Cart item ID (ter-update setelah add)"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "buyerIdB",
+      "value": "3",
+      "type": "string"
+    },
+    {
+      "key": "sellerIdB",
+      "value": "2",
+      "type": "string"
+    },
+    {
+      "key": "sellerIdC",
+      "value": "3",
+      "type": "string"
+    },
+    {
+      "key": "alamatId",
+      "value": "1",
+      "type": "string"
     }
   ],
   "item": [
@@ -128,8 +153,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/",
-              "host": ["{{baseUrl}}"],
-              "path": [""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
             },
             "description": "1. Buka '00. Setup' → 'Seed Dummy Data ke Database' (WAJIB pertama kali, atau pakai `npx ts-node scripts/seed-e2e.ts` di terminal)\n2. Login di '00. Setup' salah satu role (Admin/Buyer/Seller) — token otomatis tersimpan\n3. Jalankan endpoint lain di section 01-19 — token akan otomatis dipakai\n4. Resource IDs (produkId, pesananId, dll) auto-update dari response test scripts"
           }
@@ -146,8 +175,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/",
-              "host": ["{{baseUrl}}"],
-              "path": [""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
             },
             "description": "Jalankan di terminal:\n```\nnpx ts-node scripts/seed-e2e.ts\n```\n\nOutput akan print token siap pakai. Seed ini populate:\n- 2 buyer (Budi, Siti)\n- 3 seller (Toko A approved+OPEN, Toko B pending, Toko C approved+OPEN)\n- 3 produk + 1 layanan\n- 3 notifikasi untuk buyer + 2 notifikasi untuk seller\n- 3 kategori"
           }
@@ -179,8 +212,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/admin/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "admin", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "admin",
+                "login"
+              ]
             }
           }
         },
@@ -192,7 +232,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "// Step 1: Request OTP\nconst otpRes = await pm.sendRequest({\n    method: 'POST',\n    url: pm.variables.replaceIn('{{baseUrl}}/api/auth/buyer/request-otp'),\n    header: {'Content-Type': 'application/json'},\n    body: {mode: 'raw', raw: JSON.stringify({phoneNumber: '081111111111'})}\n});\nconst otpJson = otpRes.json();\nconst otp = otpJson.data?.otp || '00000';\n\nawait sleep(500);\n\n// Step 2: Verify OTP\nconst verifyRes = await pm.sendRequest({\n    method: 'POST',\n    url: pm.variables.replaceIn('{{baseUrl}}/api/auth/buyer/verify-otp'),\n    header: {'Content-Type': 'application/json'},\n    body: {mode: 'raw', raw: JSON.stringify({phoneNumber: '081111111111', otp: otp})}\n});\nconst verifyJson = verifyRes.json();\n\nif (verifyJson.data && verifyJson.data.token) {\n    pm.collectionVariables.set('buyerToken', verifyJson.data.token);\n    const decoded = verifyJson.data.token.split('.')[1];\n    const payload = JSON.parse(atob(decoded));\n    pm.collectionVariables.set('buyerId', String(payload.id));\n    console.log('✓ buyerToken saved (buyer id=' + payload.id + ')');\n}"
+                  "// Step 1: Request OTP\nconst otpRes = await pm.sendRequest({\n    method: 'POST',\n    url: pm.variables.replaceIn('{{baseUrl}}/api/auth/buyer/request-otp'),\n    header: {'Content-Type': 'application/json'},\n    body: {mode: 'raw', raw: JSON.stringify({phoneNumber: '081111111111'})}\n});\nconst otpJson = otpRes.json();\nconst otp = otpJson.data?.otp || '00000';\nawait sleep(500);\n// Step 2: Verify OTP\nconst verifyRes = await pm.sendRequest({\n    method: 'POST',\n    url: pm.variables.replaceIn('{{baseUrl}}/api/auth/buyer/verify-otp'),\n    header: {'Content-Type': 'application/json'},\n    body: {mode: 'raw', raw: JSON.stringify({phoneNumber: '081111111111', otp: otp})}\n});\nconst verifyJson = verifyRes.json();\nif (verifyJson.data) {\n    const accessToken = verifyJson.data.accessToken || verifyJson.data.token;\n    const refreshToken = verifyJson.data.refreshToken || '';\n    pm.collectionVariables.set('buyerToken', accessToken);\n    if (refreshToken) pm.collectionVariables.set('refreshToken', refreshToken);\n    if (verifyJson.data.user && verifyJson.data.user.id) {\n        pm.collectionVariables.set('buyerId', String(verifyJson.data.user.id));\n    }\n    console.log('✓ buyerToken + refreshToken saved via OTP flow');\n}"
                 ]
               }
             }
@@ -211,8 +251,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/buyer/request-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "buyer", "request-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "request-otp"
+              ]
             },
             "description": "Auto-handles 2-step OTP login: request OTP, then verify (reads OTP from dev console if DRY_RUN=true). Token disimpan otomatis ke {{buyerToken}}."
           }
@@ -225,7 +272,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const json = pm.response.json();\nif (json.data && json.data.token) {\n    pm.collectionVariables.set('sellerToken', json.data.token);\n    const decoded = json.data.token.split('.')[1];\n    const payload = JSON.parse(atob(decoded));\n    pm.collectionVariables.set('sellerId', String(payload.sellerId));\n    console.log('✓ sellerToken saved (seller id=' + payload.sellerId + ')');\n}"
+                  "const json = pm.response.json();\nif (json.data) {\n    const accessToken = json.data.accessToken || json.data.token;\n    const refreshToken = json.data.refreshToken || '';\n    pm.collectionVariables.set('sellerToken', accessToken);\n    if (refreshToken) pm.collectionVariables.set('refreshToken', refreshToken);\n    const decoded = accessToken.split('.')[1];\n    const payload = JSON.parse(atob(decoded));\n    pm.collectionVariables.set('sellerId', String(payload.sellerId));\n    console.log('✓ sellerToken + refreshToken saved (seller id=' + payload.sellerId + ')');\n}"
                 ]
               }
             }
@@ -244,8 +291,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/seller/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "seller", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "seller",
+                "login"
+              ]
             }
           }
         },
@@ -276,8 +330,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/buyer/request-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "buyer", "request-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "request-otp"
+              ]
             }
           }
         }
@@ -293,8 +354,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/",
-              "host": ["{{baseUrl}}"],
-              "path": [""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
             }
           }
         },
@@ -305,8 +370,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             }
           }
         }
@@ -331,8 +400,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/buyer/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "buyer", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "register"
+              ]
             }
           }
         },
@@ -352,8 +428,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/buyer/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "buyer", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "register"
+              ]
             }
           }
         },
@@ -373,8 +456,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/buyer/request-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "buyer", "request-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "request-otp"
+              ]
             },
             "description": "Cek console server untuk melihat OTP 5-digit (mode DRY_RUN). Rate limit 5 req/15min."
           }
@@ -395,8 +485,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/buyer/verify-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "buyer", "verify-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "verify-otp"
+              ]
             }
           }
         },
@@ -416,8 +513,202 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/buyer/request-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "buyer", "request-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "request-otp"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login Buyer A (email + password) — Auto-Save",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && (json.data.accessToken || json.data.token)) {\n    const accessToken = json.data.accessToken || json.data.token;\n    const refreshToken = json.data.refreshToken || '';\n    pm.collectionVariables.set('buyerToken', accessToken);\n    if (refreshToken) pm.collectionVariables.set('refreshToken', refreshToken);\n    if (json.data.user && json.data.user.id) {\n        pm.collectionVariables.set('buyerId', String(json.data.user.id));\n    }\n    console.log('✓ buyerToken + refreshToken saved');\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"budi@test.com\",\n  \"password\": \"buyer1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/buyer/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login Buyer Salah Password → 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"budi@test.com\",\n  \"password\": \"wrong\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/buyer/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Set/Ubah Password Buyer (Buyer A, butuh token)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"buyer1234\",\n  \"newPassword\": \"newpass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/buyer/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "buyer",
+                "password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token (tukar refresh → access baru, refresh lama ke-revoke)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && (json.data.accessToken || json.data.token)) {\n    const accessToken = json.data.accessToken || json.data.token;\n    const refreshToken = json.data.refreshToken || '';\n    pm.collectionVariables.set('buyerToken', accessToken);\n    if (refreshToken) pm.collectionVariables.set('refreshToken', refreshToken);\n    console.log('✓ Token rotated, refresh lama sudah di-revoke');\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh-token"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token Invalid → 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"invalid-token-1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh-token"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout (revoke refresh token, butuh access token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
             }
           }
         },
@@ -437,8 +728,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/seller/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "seller", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "seller",
+                "forgot-password"
+              ]
             }
           }
         }
@@ -463,8 +761,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/seller/request-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "seller", "request-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "seller",
+                "request-otp"
+              ]
             }
           }
         },
@@ -484,8 +789,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/seller/verify-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "seller", "verify-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "seller",
+                "verify-otp"
+              ]
             }
           }
         },
@@ -536,8 +848,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/seller/register-store",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "seller", "register-store"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "seller",
+                "register-store"
+              ]
             }
           }
         },
@@ -568,8 +887,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/seller/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "seller", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "seller",
+                "login"
+              ]
             }
           }
         },
@@ -589,8 +915,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/seller/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "seller", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "seller",
+                "login"
+              ]
             }
           }
         },
@@ -610,8 +943,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/seller/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "seller", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "seller",
+                "login"
+              ]
             }
           }
         }
@@ -647,8 +987,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/admin/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "admin", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "admin",
+                "login"
+              ]
             }
           }
         },
@@ -668,8 +1015,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/admin/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "admin", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "admin",
+                "login"
+              ]
             }
           }
         }
@@ -695,8 +1049,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/admin/stores/pending?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "stores", "pending"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "stores",
+                "pending"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -717,8 +1078,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/admin/stores/5/approve",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "stores", "5", "approve"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "stores",
+                "5",
+                "approve"
+              ]
             }
           }
         },
@@ -738,8 +1107,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/admin/stores/5/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "stores", "5", "reject"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "stores",
+                "5",
+                "reject"
+              ]
             }
           }
         }
@@ -765,8 +1142,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "profile"
+              ]
             }
           }
         },
@@ -786,8 +1169,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "profile"
+              ]
             }
           }
         },
@@ -807,8 +1196,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "profile"
+              ]
             },
             "description": "Harus return 400 karena schema strict menolak field tidak dikenal."
           }
@@ -876,8 +1271,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/product/seller/create",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "product", "seller", "create"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "seller",
+                "create"
+              ]
             }
           }
         },
@@ -888,8 +1290,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/product/seller",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "product", "seller"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "seller"
+              ]
             }
           }
         },
@@ -900,8 +1308,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/product/seller/4",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "product", "seller", "4"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "seller",
+                "4"
+              ]
             }
           }
         },
@@ -912,7 +1327,9 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/product/seller/category/makanan-minuman",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "product",
@@ -939,8 +1356,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/product/seller/4/stock",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "product", "seller", "4", "stock"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "seller",
+                "4",
+                "stock"
+              ]
             }
           }
         },
@@ -971,8 +1396,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/product/seller/4",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "product", "seller", "4"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "seller",
+                "4"
+              ]
             }
           }
         },
@@ -983,8 +1415,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/product/seller/4",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "product", "seller", "4"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "seller",
+                "4"
+              ]
             }
           }
         },
@@ -995,8 +1434,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/product/seller",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "product", "seller"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "seller"
+              ]
             }
           }
         }
@@ -1012,8 +1457,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/products?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "products"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -1034,8 +1485,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/products/4",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "products", "4"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "products",
+                "4"
+              ]
             }
           }
         },
@@ -1046,8 +1504,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/products/search?q=nasi",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "products", "search"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "products",
+                "search"
+              ],
               "query": [
                 {
                   "key": "q",
@@ -1064,8 +1529,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/products/popular",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "products", "popular"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "products",
+                "popular"
+              ]
             }
           }
         },
@@ -1076,8 +1548,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/products/recommendations",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "products", "recommendations"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "products",
+                "recommendations"
+              ]
             }
           }
         },
@@ -1098,8 +1577,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/products/recommendations",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "products", "recommendations"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "products",
+                "recommendations"
+              ]
             }
           }
         },
@@ -1110,7 +1596,9 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/products/category/makanan-minuman",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "buyer",
@@ -1128,8 +1616,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/products/category/air-galon",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "products", "category", "air-galon"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "products",
+                "category",
+                "air-galon"
+              ]
             }
           }
         },
@@ -1140,8 +1636,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/products/category/laundry",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "products", "category", "laundry"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "products",
+                "category",
+                "laundry"
+              ]
             }
           }
         }
@@ -1157,8 +1661,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/stores",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "stores"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "stores"
+              ]
             }
           }
         },
@@ -1169,8 +1679,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/stores/4",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "stores", "4"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "stores",
+                "4"
+              ]
             }
           }
         },
@@ -1181,8 +1698,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/stores/5",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "stores", "5"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "stores",
+                "5"
+              ]
             }
           }
         },
@@ -1193,8 +1717,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/stores/search?q=toko",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "stores", "search"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "stores",
+                "search"
+              ],
               "query": [
                 {
                   "key": "q",
@@ -1211,8 +1742,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/stores/category/makanan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "stores", "category", "makanan"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "stores",
+                "category",
+                "makanan"
+              ]
             }
           }
         },
@@ -1223,8 +1762,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/stores/popular",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "stores", "popular"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "stores",
+                "popular"
+              ]
             }
           }
         },
@@ -1235,8 +1781,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/stores/recommendations",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "stores", "recommendations"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "stores",
+                "recommendations"
+              ]
             }
           }
         },
@@ -1247,8 +1800,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/stores/4/products",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "stores", "4", "products"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "stores",
+                "4",
+                "products"
+              ]
             }
           }
         }
@@ -1274,8 +1835,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "profile"
+              ]
             }
           }
         },
@@ -1295,8 +1862,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/seller/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "profile"
+              ]
             }
           }
         },
@@ -1316,8 +1889,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/seller/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "profile"
+              ]
             }
           }
         },
@@ -1337,8 +1916,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/seller/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "profile"
+              ]
             }
           }
         }
@@ -1384,8 +1969,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders"
+              ]
             }
           }
         },
@@ -1401,12 +1992,18 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_produk\": [],\n  \"id_layanan\": [\n    { \"layanan_id\": 2, \"jumlah\": 1 }\n  ],\n  \"alamat_pengiriman\": \"Gedung A Lt 3\",\n  \"metode_pembayaran\": \"e-wallet\",\n  \"catatan\": \"Paket nasi box untuk rapat\"\n}"
+              "raw": "{\n  \"id_produk\": [],\n  \"id_layanan\": [\n    { \"layanan_id\": 1, \"jumlah\": 1 }\n  ],\n  \"alamat_pengiriman\": \"Gedung A Lt 3\",\n  \"alamat_id\": 1,\n  \"ongkir\": 7000,\n  \"metode_pembayaran\": \"e-wallet\",\n  \"catatan\": \"Paket nasi box untuk rapat\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders"
+              ]
             }
           }
         },
@@ -1426,8 +2023,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders"
+              ]
             }
           }
         },
@@ -1438,8 +2041,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -1460,8 +2069,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders/summary",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders", "summary"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders",
+                "summary"
+              ]
             }
           }
         },
@@ -1472,8 +2088,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders/status/pending",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders", "status", "pending"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders",
+                "status",
+                "pending"
+              ]
             }
           }
         },
@@ -1484,8 +2108,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders/{{pesananId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders", "{{pesananId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders",
+                "{{pesananId}}"
+              ]
             }
           }
         },
@@ -1496,8 +2127,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders/{{pesananId}}/track",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders", "{{pesananId}}", "track"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders",
+                "{{pesananId}}",
+                "track"
+              ]
             }
           }
         },
@@ -1517,8 +2156,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders/{{pesananId}}/cancel",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders", "{{pesananId}}", "cancel"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders",
+                "{{pesananId}}",
+                "cancel"
+              ]
             }
           }
         },
@@ -1529,8 +2176,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders/{{pesananId}}/confirm",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders", "{{pesananId}}", "confirm"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders",
+                "{{pesananId}}",
+                "confirm"
+              ]
             }
           }
         },
@@ -1550,8 +2205,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/orders/{{pesananId}}/review",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "orders", "{{pesananId}}", "review"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "orders",
+                "{{pesananId}}",
+                "review"
+              ]
             }
           }
         }
@@ -1577,8 +2240,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/orders?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "orders"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "orders"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -1599,8 +2268,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/orders/summary",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "orders", "summary"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "orders",
+                "summary"
+              ]
             }
           }
         },
@@ -1611,8 +2287,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/orders/status/pending",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "orders", "status", "pending"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "orders",
+                "status",
+                "pending"
+              ]
             }
           }
         },
@@ -1623,8 +2307,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/orders/{{pesananId}}/accept",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "orders", "{{pesananId}}", "accept"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "orders",
+                "{{pesananId}}",
+                "accept"
+              ]
             }
           }
         },
@@ -1635,8 +2327,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/orders/{{pesananId}}/processing",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "orders", "{{pesananId}}", "processing"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "orders",
+                "{{pesananId}}",
+                "processing"
+              ]
             }
           }
         },
@@ -1656,8 +2356,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/seller/orders/{{pesananId}}/deliver",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "orders", "{{pesananId}}", "deliver"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "orders",
+                "{{pesananId}}",
+                "deliver"
+              ]
             }
           }
         }
@@ -1703,8 +2411,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/service/seller",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "service", "seller"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "service",
+                "seller"
+              ]
             }
           }
         },
@@ -1715,8 +2429,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/service/seller",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "service", "seller"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "service",
+                "seller"
+              ]
             }
           }
         },
@@ -1727,8 +2447,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/service/seller/2",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "service", "seller", "2"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "service",
+                "seller",
+                "2"
+              ]
             }
           }
         },
@@ -1748,8 +2475,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/service/seller/2",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "service", "seller", "2"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "service",
+                "seller",
+                "2"
+              ]
             }
           }
         },
@@ -1760,8 +2494,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/service/seller/3",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "service", "seller", "3"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "service",
+                "seller",
+                "3"
+              ]
             }
           }
         }
@@ -1777,8 +2518,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/service/buyer/store/4",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "service", "buyer", "store", "4"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "service",
+                "buyer",
+                "store",
+                "4"
+              ]
             }
           }
         }
@@ -1824,8 +2573,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/cart/items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "cart", "items"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "cart",
+                "items"
+              ]
             }
           }
         },
@@ -1845,8 +2601,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/cart/items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "cart", "items"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "cart",
+                "items"
+              ]
             }
           }
         },
@@ -1866,8 +2629,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/cart/items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "cart", "items"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "cart",
+                "items"
+              ]
             }
           }
         },
@@ -1878,8 +2648,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/cart",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "cart"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "cart"
+              ]
             }
           }
         },
@@ -1899,8 +2675,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/cart/items/{{cartItemId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "cart", "items", "{{cartItemId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "cart",
+                "items",
+                "{{cartItemId}}"
+              ]
             }
           }
         },
@@ -1911,8 +2695,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/cart/items/{{cartItemId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "cart", "items", "{{cartItemId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "cart",
+                "items",
+                "{{cartItemId}}"
+              ]
             }
           }
         },
@@ -1923,8 +2715,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/cart",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "cart"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "cart"
+              ]
             }
           }
         }
@@ -1955,12 +2753,18 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"alamat_pengiriman\": \"Gedung A Lt 3, Fakultas Teknologi Informasi\",\n  \"metode_pembayaran\": \"transfer\",\n  \"catatan\": \"Checkout test via Postman\"\n}"
+              "raw": "{\n  \"alamat_pengiriman\": \"Gedung A Lt 3, Fakultas Teknologi Informasi\",\n  \"alamat_id\": 1,\n  \"ongkir\": 5000,\n  \"metode_pembayaran\": \"transfer\",\n  \"catatan\": \"Checkout test via Postman, ongkir sudah termasuk\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/checkout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "checkout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "checkout"
+              ]
             }
           }
         },
@@ -1980,8 +2784,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/buyer/checkout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "checkout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "checkout"
+              ]
             }
           }
         }
@@ -2017,7 +2827,9 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/payments/buyer/pesanan/{{pesananId}}/receipt",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "payments",
@@ -2056,8 +2868,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/payments/buyer/pesanan/9999/receipt",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "buyer", "pesanan", "9999", "receipt"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "buyer",
+                "pesanan",
+                "9999",
+                "receipt"
+              ]
             }
           }
         },
@@ -2078,7 +2899,9 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/payments/seller/pembayaran/{{pembayaranId}}/confirm",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "payments",
@@ -2116,7 +2939,9 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/payments/seller/pembayaran/{{pembayaranId}}/reject",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "payments",
@@ -2150,8 +2975,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/notifications?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "notifications"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "notifications"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -2172,8 +3003,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/notifications?tipe=order_accepted",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "notifications"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "notifications"
+              ],
               "query": [
                 {
                   "key": "tipe",
@@ -2190,8 +3027,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/notifications/unread-count",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "notifications", "unread-count"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "notifications",
+                "unread-count"
+              ]
             }
           }
         },
@@ -2202,8 +3046,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/notifications/read-all",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "notifications", "read-all"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "notifications",
+                "read-all"
+              ]
             }
           }
         },
@@ -2214,8 +3065,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/notifications/1/read",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "notifications", "1", "read"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "notifications",
+                "1",
+                "read"
+              ]
             }
           }
         },
@@ -2226,8 +3085,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/buyer/notifications/2",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "buyer", "notifications", "2"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "notifications",
+                "2"
+              ]
             }
           }
         }
@@ -2253,8 +3119,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/notifications?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "notifications"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "notifications"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -2275,8 +3147,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/notifications?tipe=new_order",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "notifications"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "notifications"
+              ],
               "query": [
                 {
                   "key": "tipe",
@@ -2293,8 +3171,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/notifications/unread-count",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "notifications", "unread-count"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "notifications",
+                "unread-count"
+              ]
             }
           }
         },
@@ -2305,8 +3190,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/notifications/1/read",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "notifications", "1", "read"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "notifications",
+                "1",
+                "read"
+              ]
             }
           }
         },
@@ -2317,8 +3210,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/notifications/read-all",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "notifications", "read-all"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "notifications",
+                "read-all"
+              ]
             }
           }
         },
@@ -2329,15 +3229,270 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/seller/notifications/2",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "seller", "notifications", "2"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "seller",
+                "notifications",
+                "2"
+              ]
             }
           }
         }
       ]
     },
     {
-      "name": "20. Cross-Module Examples",
+      "name": "20. Alamat (Multi-Address)",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{buyerToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "List Alamat (Buyer A punya 1 seeded: Kost primary)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": null
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/buyer/alamat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "alamat"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tambah Alamat Baru (Rumah, akan jadi non-primary)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.data && json.data.alamat_id) {\n    pm.collectionVariables.set('alamatId', String(json.data.alamat_id));\n    console.log('✓ alamatId saved:', json.data.alamat_id);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Rumah\",\n  \"alamat_lengkap\": \"Jl. Rumah No. 7, Bogor\",\n  \"catatan\": \"Rumah cat hijau\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/buyer/alamat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "alamat"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tambah Alamat Kantor (is_primary=true → unset primary lain)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Kantor\",\n  \"alamat_lengkap\": \"Gedung B Lt 5, Jakarta\",\n  \"is_primary\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/buyer/alamat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "alamat"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Alamat by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": null
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/buyer/alamat/{{alamatId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "alamat",
+                "{{alamatId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Alamat",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"catatan\": \"Update catatan baru, bell biru\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/buyer/alamat/{{alamatId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "alamat",
+                "{{alamatId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Set Alamat Primary",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": null
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/buyer/alamat/{{alamatId}}/primary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "alamat",
+                "{{alamatId}}",
+                "primary"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hapus Alamat (kalau primary, otomatis pindah ke alamat terbaru)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": null
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/buyer/alamat/{{alamatId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "alamat",
+                "{{alamatId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Alamat Milik User Lain → 403",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": null
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/buyer/alamat/999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "buyer",
+                "alamat",
+                "999"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "21. Cross-Module Examples",
       "item": [
         {
           "name": "Full E2E Flow (Buyer): Create order → Upload receipt → Confirm → Review",

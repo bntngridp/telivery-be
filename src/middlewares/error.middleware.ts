@@ -27,7 +27,6 @@ function flattenZodErrors(err: ZodError): {
   return { errors, fieldList };
 }
 
-// eslint-disable-next-line no-unused-vars
 export function errorHandler(
   err: unknown,
   _req: Request,
@@ -80,13 +79,11 @@ export function errorHandler(
   }
 
   if (err instanceof Error) {
-    // eslint-disable-next-line no-console
     console.error("[ERROR]", err);
     fail(res, isDevelopment ? err.message : "Internal server error", 500);
     return;
   }
 
-  // eslint-disable-next-line no-console
   console.error("[UNKNOWN ERROR]", err);
   fail(res, "Internal server error", 500);
 }

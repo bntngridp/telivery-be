@@ -15,6 +15,7 @@ import {
   UnauthorizedError,
   BadRequestError,
 } from "../../utils/errors";
+import { sendOrderEmail } from "../../services/notification/email.sender";
 
 function requireUserId(req: Request): number {
   const userId = req.user?.id;
@@ -24,6 +25,41 @@ function requireUserId(req: Request): number {
   return userId;
 }
 
+/**
+ * @openapi
+ * /api/buyer/orders:
+ *   post:
+ *     tags: [Order]
+ *     summary: Buat pesanan baru
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id_produk: { type: array, items: { type: object } }
+ *               id_layanan: { type: array, items: { type: object } }
+ *               alamat_pengiriman: { type: string }
+ *               alamat_id: { type: integer, nullable: true }
+ *               ongkir: { type: number, default: 0 }
+ *               metode_pembayaran:
+ *                 type: string
+ *                 enum: [cash, transfer, "e-wallet", midtrans]
+ *               catatan: { type: string, nullable: true }
+ *     responses:
+ *       201:
+ *         description: Pesanan berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items: { $ref: "#/components/schemas/Pesanan" }
+ */
 export const buyerOrderController = {
   createOrder: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
@@ -32,6 +68,23 @@ export const buyerOrderController = {
     return created(res, "Pesanan berhasil dibuat", orders);
   }),
 
+  /**
+   * @openapi
+   * /api/buyer/orders:
+   *   get:
+   *     tags: [Order]
+   *     summary: List pesanan pembeli (paginated)
+   *     security: [{ bearerAuth: [] }]
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema: { type: integer, default: 1 }
+   *       - in: query
+   *         name: limit
+   *         schema: { type: integer, default: 10 }
+   *     responses:
+   *       200: { description: Daftar pesanan }
+   */
   getBuyerOrders: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
     const pagination = orderPaginationSchema.parse(req.query);
@@ -50,6 +103,19 @@ export const buyerOrderController = {
     );
   }),
 
+  /**
+   * @openapi
+   * /api/buyer/orders/{id}:
+   *   get:
+   *     tags: [Order]
+   *     summary: Detail pesanan
+   *     security: [{ bearerAuth: [] }]
+   *     parameters:
+   *       - $ref: "#/components/parameters/IdParam"
+   *     responses:
+   *       200: { description: Detail pesanan }
+   *       404: { $ref: "#/components/responses/NotFound" }
+   */
   getOrderById: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
     const params = orderIdSchema.parse(req.params);
@@ -61,6 +127,14 @@ export const buyerOrderController = {
     return success(res, "Detail pesanan berhasil diambil", order);
   }),
 
+  /**
+   * @openapi
+   * /api/buyer/orders/{id}/cancel:
+   *   post:
+   *     tags: [Order]
+   *     summary: Cancel pesanan
+   *     security: [{ bearerAuth: [] }]
+   */
   cancelOrder: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
     const params = orderIdSchema.parse(req.params);
@@ -77,6 +151,14 @@ export const buyerOrderController = {
     return success(res, "Pesanan berhasil dibatalkan", updatedOrder);
   }),
 
+  /**
+   * @openapi
+   * /api/buyer/orders/{id}/confirm:
+   *   post:
+   *     tags: [Order]
+   *     summary: Konfirmasi pesanan diterima (selesai)
+   *     security: [{ bearerAuth: [] }]
+   */
   confirmOrder: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
     const params = orderIdSchema.parse(req.params);
@@ -91,6 +173,14 @@ export const buyerOrderController = {
     return success(res, "Pesanan berhasil dikonfirmasi selesai", updatedOrder);
   }),
 
+  /**
+   * @openapi
+   * /api/buyer/orders/by-status/{status}:
+   *   get:
+   *     tags: [Order]
+   *     summary: Pesanan by status
+   *     security: [{ bearerAuth: [] }]
+   */
   getOrdersByStatus: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
     const params = orderStatusSchema.parse(req.params);
@@ -111,6 +201,14 @@ export const buyerOrderController = {
     );
   }),
 
+  /**
+   * @openapi
+   * /api/buyer/orders/{id}/track:
+   *   get:
+   *     tags: [Order]
+   *     summary: Tracking pesanan
+   *     security: [{ bearerAuth: [] }]
+   */
   trackOrder: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
     const params = orderIdSchema.parse(req.params);
@@ -126,12 +224,28 @@ export const buyerOrderController = {
     );
   }),
 
+  /**
+   * @openapi
+   * /api/buyer/orders/summary:
+   *   get:
+   *     tags: [Order]
+   *     summary: Ringkasan pesanan (dashboard)
+   *     security: [{ bearerAuth: [] }]
+   */
   getOrderSummary: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
     const summary = await buyerOrderService.getOrderSummary(userId);
     return success(res, "Ringkasan pesanan berhasil diambil", summary);
   }),
 
+  /**
+   * @openapi
+   * /api/buyer/orders/{id}/review:
+   *   post:
+   *     tags: [Order]
+   *     summary: Submit review
+   *     security: [{ bearerAuth: [] }]
+   */
   reviewOrder: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
     const params = orderIdSchema.parse(req.params);

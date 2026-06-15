@@ -37,6 +37,15 @@ export const checkoutService = {
       throw new BadRequestError("Cart kosong, tidak bisa checkout");
     }
 
+    if (data.alamat_id) {
+      const alamat = await prisma.alamat.findUnique({
+        where: { alamat_id: data.alamat_id },
+      });
+      if (!alamat || alamat.user_id !== userId) {
+        throw new BadRequestError("Alamat tidak valid atau bukan milik Anda");
+      }
+    }
+
     // Pre-validate toko + stock
     for (const it of items) {
       const seller = it.produk?.penjual ?? it.layanan?.penjual;
@@ -75,24 +84,29 @@ export const checkoutService = {
     const createdOrders: Array<{
       pesanan_id: number;
       mitra_id: number;
+      subtotal: number;
+      ongkir: number;
       total: number;
     }> = [];
 
     await prisma.$transaction(async (tx) => {
       for (const [storeIdStr, storeItems] of Object.entries(byStore)) {
         const storeId = Number(storeIdStr);
-        let total = 0;
+        let subtotal = 0;
         for (const it of storeItems) {
           const price = it.produk?.harga ?? it.layanan?.harga;
-          if (price) total += Number(price) * it.jumlah;
+          if (price) subtotal += Number(price) * it.jumlah;
         }
+        const total = subtotal + (data.ongkir ?? 0);
 
         const order = await tx.pesanan.create({
           data: {
             user_id: userId,
             mitra_id: storeId,
             total_harga: total,
+            ongkir: data.ongkir ?? 0,
             alamat_pengiriman: data.alamat_pengiriman,
+            alamat_id: data.alamat_id ?? null,
             status_pesanan: "pending",
             metode_pembayaran: data.metode_pembayaran,
             waktu_pesan: new Date(),
@@ -159,6 +173,8 @@ export const checkoutService = {
         createdOrders.push({
           pesanan_id: order.pesanan_id,
           mitra_id: storeId,
+          subtotal,
+          ongkir: data.ongkir ?? 0,
           total,
         });
       }

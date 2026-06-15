@@ -22,13 +22,17 @@ async function main() {
     await prisma.penjual.deleteMany({});
     await prisma.otp_verify.deleteMany({});
     await prisma.ulasan.deleteMany({});
+    await prisma.refresh_token.deleteMany({});
+    await prisma.alamat.deleteMany({});
 
     // BUYER
+    const buyerAPassword = await bcrypt.hash('buyer1234', 10);
     const buyerA = await prisma.pembeli.create({
         data: {
             full_name: 'Budi Santoso',
             phone_number: '081111111111',
             email: 'budi@test.com',
+            password: buyerAPassword,
             domicile: 'Jakarta',
             faculty: 'FTI',
             major: 'Teknik Informatika',
@@ -41,9 +45,33 @@ async function main() {
             full_name: 'Siti Aminah',
             phone_number: '082222222222',
             email: 'siti@test.com',
+            password: await bcrypt.hash('buyer1234', 10),
             delivery_address: 'Jl. Test No. 2',
         },
     });
+
+    // Alamat dummy untuk buyerA
+    const alamatKost = await prisma.alamat.create({
+        data: {
+            user_id: buyerA.user_id,
+            label: 'Kost',
+            alamat_lengkap: 'Jl. Kost No. 12, Kamar 5, Jakarta',
+            catatan: 'Pintu biru, sebelah warung',
+            latitude: -6.2,
+            longitude: 106.8,
+            is_primary: true,
+        },
+    });
+    const alamatRumah = await prisma.alamat.create({
+        data: {
+            user_id: buyerA.user_id,
+            label: 'Rumah',
+            alamat_lengkap: 'Jl. Rumah No. 7, Bogor',
+            catatan: 'Rumah cat hijau',
+            is_primary: false,
+        },
+    });
+    void alamatRumah;
 
     // SELLERS
     const sellerA = await prisma.penjual.create({
@@ -233,16 +261,22 @@ async function main() {
     console.log('  produk2.produk_id  =', produk2.produk_id, '(Es Teh @5000, A)');
     console.log('  produkC.produk_id  =', produkC.produk_id, '(Galon @20000, C)');
     console.log('  layananA.layanan_id=', layananA.layanan_id, '(Paket Nasi Box @25000, A)');
+    console.log('  alamatKost.alamat_id=', alamatKost.alamat_id, '(Kost, primary)');
     console.log('');
-    console.log('TOKENS:');
+    console.log('LOGIN CREDS:');
+    console.log('  Admin:   bntngrid@gmail.com / admin123');
+    console.log('  Buyer A: budi@test.com / buyer1234   (OTP phone: 081111111111)');
+    console.log('  Buyer B: siti@test.com / buyer1234   (OTP phone: 082222222222)');
+    console.log('  Seller A: a@test.com / password123   (phone: 083333333333)');
+    console.log('  Seller B: b@test.com / password123   (pending)');
+    console.log('  Seller C: c@test.com / password123');
+    console.log('');
+    console.log('TOKENS (copy-paste ke Postman jika perlu):');
     console.log('  BUYER_A_TOKEN=' + tokenBuyerA);
     console.log('  BUYER_B_TOKEN=' + tokenBuyerB);
     console.log('  SELLER_A_TOKEN=' + tokenSellerA);
     console.log('  SELLER_B_TOKEN=' + tokenSellerB);
     console.log('  ADMIN_TOKEN=' + tokenAdmin);
-    console.log('');
-    console.log('Admin env creds: bntngrid@gmail.com / admin123');
-    console.log('Seller A login: a@test.com / password123');
 }
 
 main()

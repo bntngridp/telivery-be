@@ -10,7 +10,10 @@ import {
   deleteAllProducts,
 } from "./product.controller";
 import { jwtMiddleware } from "../../middlewares/jwt.middleware";
-import { uploadProductImageSingle } from "../../middlewares/multer.seller";
+import {
+  uploadProductImageSingle,
+  processProductImage,
+} from "../../middlewares/multer.seller";
 
 const router = Router();
 
@@ -18,6 +21,7 @@ router.post(
   "/seller/create",
   jwtMiddleware,
   uploadProductImageSingle,
+  processProductImage,
   createProduct,
 );
 router.get("/seller", jwtMiddleware, getAllProducts);
@@ -27,6 +31,7 @@ router.put(
   "/seller/:id",
   jwtMiddleware,
   uploadProductImageSingle,
+  processProductImage,
   updateProduct,
 );
 router.patch("/seller/:id/stock", jwtMiddleware, updateProductStock);

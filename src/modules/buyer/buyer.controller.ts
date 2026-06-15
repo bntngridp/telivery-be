@@ -12,6 +12,14 @@ function requireUserId(req: Request): number {
   return id;
 }
 
+/**
+ * @openapi
+ * /api/buyer/profile:
+ *   get:
+ *     tags: [Buyer Profile]
+ *     summary: Get profil sendiri
+ *     security: [{ bearerAuth: [] }]
+ */
 export const buyerProfileController = {
   getProfile: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
@@ -19,6 +27,14 @@ export const buyerProfileController = {
     return success(res, "Profil pembeli berhasil diambil", profile);
   }),
 
+  /**
+   * @openapi
+   * /api/buyer/profile:
+   *   patch:
+   *     tags: [Buyer Profile]
+   *     summary: Update profil sendiri
+   *     security: [{ bearerAuth: [] }]
+   */
   updateProfile: asyncHandler(async (req: Request, res: Response) => {
     const userId = requireUserId(req);
     const data = updateProfileSchema.parse(req.body);

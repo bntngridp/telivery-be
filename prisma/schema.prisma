@@ -91,52 +91,62 @@ model pembayaran {
   waktu_pembayaran  DateTime? @db.DateTime(0)
   bukti_bayar       String?   @db.Text
   catatan_penjual   String?   @db.Text
+  // Midtrans Snap fields
+  midtrans_order_id String?   @unique @db.VarChar(100)
+  snap_token        String?   @db.Text
+  payment_type      String?   @db.VarChar(50)
+  paid_at           DateTime? @db.DateTime(0)
+  midtrans_response Json?
   pesanan           pesanan?  @relation(fields: [pesanan_id], references: [pesanan_id], onDelete: Restrict, onUpdate: Restrict, map: "pembayaran_ibfk_1")
 
   @@index([pesanan_id], map: "pembayaran_pesanan_id_fkey")
+  @@index([status_pembayaran], map: "pembayaran_status_idx")
 }
 
 model pembeli {
-  user_id          Int          @id @default(autoincrement())
-  email            String?      @db.VarChar(100)
-  password         String?      @db.VarChar(255)
-  domicile         String?      @db.VarChar(100)
-  faculty          String?      @db.VarChar(100)
-  major            String?      @db.VarChar(100)
-  delivery_address String?      @db.Text
-  phone_number     String?      @db.VarChar(20)
-  full_name        String?      @db.VarChar(100)
+  user_id          Int             @id @default(autoincrement())
+  email            String?         @db.VarChar(100)
+  password         String?         @db.VarChar(255)
+  domicile         String?         @db.VarChar(100)
+  faculty          String?         @db.VarChar(100)
+  major            String?         @db.VarChar(100)
+  delivery_address String?         @db.Text
+  phone_number     String?         @db.VarChar(20)
+  full_name        String?         @db.VarChar(100)
   birth_date       DateTime?
   last_login_at    DateTime?
+  alamat           alamat[]
   cart             cart[]
-  notifications    notifikasi[] @relation("PembeliNotifikasi")
-  orders           pesanan[]    @relation("PembeliPesanan")
+  notifications    notifikasi[]    @relation("PembeliNotifikasi")
+  orders           pesanan[]       @relation("PembeliPesanan")
+  refresh_tokens   refresh_token[]
 }
 
 model penjual {
-  mitra_id          Int            @id @default(autoincrement())
-  phone_number      String?        @db.VarChar(20)
-  email             String?        @db.VarChar(100)
-  password          String?        @db.VarChar(255)
-  jenis_usaha       String?        @db.VarChar(50)
-  foto_ktp_pemilik  String?        @db.Text
-  alamat_toko       String?        @db.Text
-  foto_pemilik      String?        @db.Text
-  status_verifikasi String?        @db.VarChar(50)
-  nama_pemilik      String?        @db.VarChar(100)
-  nama_toko         String?        @unique(map: "nama_toko") @db.VarChar(100)
-  deskripsi_toko    String?        @db.Text
-  jam_oprasional    String?        @db.VarChar(50)
+  mitra_id          Int             @id @default(autoincrement())
+  phone_number      String?         @db.VarChar(20)
+  email             String?         @db.VarChar(100)
+  password          String?         @db.VarChar(255)
+  jenis_usaha       String?         @db.VarChar(50)
+  foto_ktp_pemilik  String?         @db.Text
+  alamat_toko       String?         @db.Text
+  foto_pemilik      String?         @db.Text
+  status_verifikasi String?         @db.VarChar(50)
+  nama_pemilik      String?         @db.VarChar(100)
+  nama_toko         String?         @unique(map: "nama_toko") @db.VarChar(100)
+  deskripsi_toko    String?         @db.Text
+  jam_oprasional    String?         @db.VarChar(50)
   verifikasi_toko   Boolean?
-  status_toko       String?        @db.VarChar(50)
-  role_penjual      String?        @db.VarChar(50)
-  waktu_dibuat      DateTime?      @db.DateTime(0)
-  last_login_at    DateTime?      @db.DateTime(0)
+  status_toko       String?         @db.VarChar(50)
+  role_penjual      String?         @db.VarChar(50)
+  waktu_dibuat      DateTime?       @db.DateTime(0)
+  last_login_at     DateTime?       @db.DateTime(0)
   dompet_mitra      dompet_mitra[]
   layanan           layanan[]
   notifikasi        notifikasi[]
   pesanan           pesanan[]
   produk            produk[]
+  refresh_tokens    refresh_token[]
 }
 
 model pesanan {
@@ -144,7 +154,9 @@ model pesanan {
   user_id                Int?
   mitra_id               Int?
   total_harga            Decimal?                 @db.Decimal(12, 2)
+  ongkir                 Decimal?                 @default(0) @db.Decimal(12, 2)
   alamat_pengiriman      String?                  @db.Text
+  alamat_id              Int?
   status_pesanan         String?                  @db.VarChar(50)
   metode_pembayaran      String?                  @db.VarChar(50)
   waktu_pesan            DateTime?                @db.DateTime(0)
@@ -153,12 +165,14 @@ model pesanan {
   detail_pesanan_layanan detail_pesanan_layanan[]
   detail_pesanan_produk  detail_pesanan_produk[]
   pembayaran             pembayaran[]
+  alamat_ref             alamat?                  @relation(fields: [alamat_id], references: [alamat_id], onDelete: SetNull, onUpdate: Restrict, map: "pesanan_alamat_fk")
   pembeli                pembeli?                 @relation("PembeliPesanan", fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: Restrict, map: "pesanan_ibfk_1")
   penjual                penjual?                 @relation(fields: [mitra_id], references: [mitra_id], onDelete: Restrict, onUpdate: Restrict, map: "pesanan_ibfk_2")
   ulasan                 ulasan[]
 
   @@index([mitra_id], map: "mitra_id")
   @@index([user_id], map: "user_id")
+  @@index([alamat_id], map: "pesanan_alamat_idx")
 }
 
 model produk {
@@ -219,13 +233,50 @@ model cart {
   created_at DateTime @default(now()) @db.DateTime(0)
   updated_at DateTime @updatedAt @db.DateTime(0)
 
-  pembeli  pembeli?  @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "cart_ibfk_1")
-  produk   produk?   @relation(fields: [produk_id], references: [produk_id], onDelete: Cascade, onUpdate: Restrict, map: "cart_ibfk_2")
-  layanan  layanan?  @relation(fields: [layanan_id], references: [layanan_id], onDelete: Cascade, onUpdate: Restrict, map: "cart_ibfk_3")
+  pembeli pembeli? @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "cart_ibfk_1")
+  produk  produk?  @relation(fields: [produk_id], references: [produk_id], onDelete: Cascade, onUpdate: Restrict, map: "cart_ibfk_2")
+  layanan layanan? @relation(fields: [layanan_id], references: [layanan_id], onDelete: Cascade, onUpdate: Restrict, map: "cart_ibfk_3")
 
   @@unique([user_id, produk_id], map: "cart_user_produk_unique")
   @@unique([user_id, layanan_id], map: "cart_user_layanan_unique")
   @@index([user_id], map: "cart_user_id_fkey")
   @@index([produk_id], map: "cart_produk_id_fkey")
   @@index([layanan_id], map: "cart_layanan_id_fkey")
+}
+
+model refresh_token {
+  token_id   Int       @id @default(autoincrement())
+  user_id    Int?
+  mitra_id   Int?
+  token_hash String    @unique @db.VarChar(255)
+  expires_at DateTime  @db.DateTime(0)
+  revoked_at DateTime? @db.DateTime(0)
+  created_at DateTime  @default(now()) @db.DateTime(0)
+  user_agent String?   @db.VarChar(255)
+
+  pembeli pembeli? @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "refresh_token_user_fk")
+  penjual penjual? @relation(fields: [mitra_id], references: [mitra_id], onDelete: Cascade, onUpdate: Restrict, map: "refresh_token_mitra_fk")
+
+  @@index([user_id], map: "refresh_token_user_idx")
+  @@index([mitra_id], map: "refresh_token_mitra_idx")
+  @@index([expires_at], map: "refresh_token_exp_idx")
+}
+
+model alamat {
+  alamat_id      Int      @id @default(autoincrement())
+  user_id        Int
+  label          String   @db.VarChar(50)
+  alamat_lengkap String   @db.Text
+  catatan        String?  @db.Text
+  latitude       Decimal? @db.Decimal(10, 7)
+  longitude      Decimal? @db.Decimal(10, 7)
+  is_primary     Boolean  @default(false)
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime @updatedAt @db.DateTime(0)
+
+  pembeli pembeli   @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "alamat_user_fk")
+  pesanan pesanan[]
+
+  @@index([user_id], map: "alamat_user_idx")
+  @@index([user_id, is_primary], map: "alamat_user_primary_idx")
 }

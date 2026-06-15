@@ -39,7 +39,12 @@ export const CATEGORY_DB_VALUES = [
 ] as const;
 export type CategoryDb = (typeof CATEGORY_DB_VALUES)[number];
 
-export const PAYMENT_METHODS = ["cash", "transfer", "e-wallet"] as const;
+export const PAYMENT_METHODS = [
+  "cash",
+  "transfer",
+  "e-wallet",
+  "midtrans",
+] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 export const PAYMENT_STATUS = {
