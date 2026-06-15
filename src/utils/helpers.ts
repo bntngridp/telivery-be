@@ -1,7 +1,11 @@
+import crypto from "crypto";
+
 export function generateOtp(length = 5): string {
   const min = Math.pow(10, length - 1);
   const max = Math.pow(10, length) - 1;
-  return String(Math.floor(Math.random() * (max - min + 1)) + min);
+  const range = max - min + 1;
+  const value = crypto.randomInt(0, range) + min;
+  return String(value);
 }
 
 export function deleteFileIfExists(filePath?: string | null): void {
@@ -28,4 +32,8 @@ export function toInt(value: unknown, fallback = 0): number {
 
 export function sanitizeFileName(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_");
+}
+
+export function generateUniqueId(): string {
+  return crypto.randomBytes(8).toString("hex");
 }

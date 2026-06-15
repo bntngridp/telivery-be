@@ -2,6 +2,7 @@ import multer, { FileFilterCallback } from "multer";
 import { Request, Response, NextFunction } from "express";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 import { UPLOAD_LIMITS, UPLOAD_PATHS } from "../config/constants";
 import { BadRequestError } from "../utils/errors";
 import { sanitizeFileName } from "../utils/helpers";
@@ -57,7 +58,7 @@ const storage = multer.diskStorage({
     const base = sanitizeFileName(
       path.basename(file.originalname, path.extname(file.originalname)),
     );
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const unique = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}`;
     const ext = file.mimetype === "application/pdf" ? ".pdf" : ".tmp";
     cb(null, `${base}-${unique}${ext}`);
   },
