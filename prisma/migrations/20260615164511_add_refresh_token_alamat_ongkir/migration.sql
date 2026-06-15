@@ -52,6 +52,3 @@ ALTER TABLE `refresh_token` ADD CONSTRAINT `refresh_token_mitra_fk` FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE `alamat` ADD CONSTRAINT `alamat_user_fk` FOREIGN KEY (`user_id`) REFERENCES `pembeli`(`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT;
-
--- RenameIndex
-ALTER TABLE `pembayaran` RENAME INDEX `pembayaran_status_pembayaran_idx` TO `pembayaran_status_idx`;

@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - "**.md"
+      - ".kilo/**"
+      - "docs/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Detect version bump
+        id: bump
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Previous tag: $PREV_TAG"
+          COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s")
+          echo "Commits since last tag:"
+          echo "$COMMITS"
+          if echo "$COMMITS" | grep -qiE "BREAKING CHANGE|^[a-z]+(\([^)]+\))?!:"; then
+            echo "level=major" >> $GITHUB_OUTPUT
+          elif echo "$COMMITS" | grep -qiE "^feat(\([^)]+\))?:"; then
+            echo "level=minor" >> $GITHUB_OUTPUT
+          else
+            echo "level=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bump version & create tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm version ${{ steps.bump.outputs.level }} --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "chore(release): v${NEW_VERSION}" || true
+          git tag "v${NEW_VERSION}"
+          git push origin "v${NEW_VERSION}"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${PREV_TAG}..HEAD"
+          fi
+          CHANGELOG=$(git log ${RANGE} --pretty=format:"- %s (%h)" --no-merges | head -50)
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          body: |
+            ## Changes
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Deployment Notes
+            - Database migrations: `npx prisma migrate deploy`
+            - Required env vars: see `.env.example`
+            - New endpoints: see `/api/docs`
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.ref_name }}
+          path: dist/
+          if-no-files-found: ignore
