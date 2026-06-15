@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+# Force Node 24 since Node 20 is being phased out.
+# See: https://github.com/actions/runner-images/issues/12544
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
